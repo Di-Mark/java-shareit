@@ -6,10 +6,7 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.User;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -90,7 +87,7 @@ public class UserDaoImpl implements UserDao {
                 throw new ValidationException("неправильный формат почты пользователя");
             }
             for (User tempUser : userMap.values()) {
-                if (tempUser.getId() != id) {
+                if (!Objects.equals(tempUser.getId(), id)) {
                     if (user.getEmail().equals(tempUser.getEmail())) {
                         log.info("Пользователь с данной почтой уже существует");
                         throw new RuntimeException();

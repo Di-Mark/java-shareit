@@ -8,11 +8,12 @@ import ru.practicum.shareit.item.model.Item;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 @Getter
 @Service
-public class ItemServiceImpl implements ItemService {
+public class    ItemServiceImpl implements ItemService {
     private final ItemDao itemDao;
 
     @Autowired
@@ -24,7 +25,7 @@ public class ItemServiceImpl implements ItemService {
     public List<Item> getItemsListForUser(Long userId) {
         List<Item> result = new ArrayList<>();
         for (Item item : itemDao.getAllItems()) {
-            if (item.getOwner().getId() == userId) {
+            if (Objects.equals(item.getOwner().getId(), userId)) {
                 result.add(item);
             }
         }

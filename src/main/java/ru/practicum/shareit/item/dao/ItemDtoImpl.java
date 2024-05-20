@@ -89,7 +89,7 @@ public class ItemDtoImpl implements ItemDao {
         }
         userDao.getUser(userId);
         getItem(idItem);
-        if (getItem(idItem).getOwner().getId() != userId) {
+        if (!Objects.equals(getItem(idItem).getOwner().getId(), userId)) {
             throw new NotFoundException("только владелец вещи может вносить изменения");
         }
         if (item.getName() != null) {
