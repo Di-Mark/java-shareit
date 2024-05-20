@@ -13,32 +13,34 @@ import java.util.List;
 @RequestMapping(path = "/users")
 public class UserController {
     private final UserDao userDao;
+
     @Autowired
-    public UserController(UserDao userDao){
+    public UserController(UserDao userDao) {
         this.userDao = userDao;
     }
+
     @GetMapping
-    public List<User> findAllUsers(){
+    public List<User> findAllUsers() {
         return userDao.findAllUsers();
     }
 
     @PostMapping
-    public User createUser(@RequestBody User user){
+    public User createUser(@RequestBody User user) {
         return userDao.createUser(user);
     }
 
     @PatchMapping("/{id}")
-    public User patchUser(@RequestBody User user, @PathVariable("id") Long id){
-        return userDao.patchUser(user,id);
+    public User patchUser(@RequestBody User user, @PathVariable("id") Long id) {
+        return userDao.patchUser(user, id);
     }
 
     @GetMapping("/{id}")
-    public User getUser(@PathVariable("id") Long id){
+    public User getUser(@PathVariable("id") Long id) {
         return userDao.getUser(id);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable("id") Long id){
+    public void deleteUser(@PathVariable("id") Long id) {
         userDao.deleteUser(id);
     }
 }
