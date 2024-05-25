@@ -15,7 +15,7 @@ import java.util.List;
 public class ItemController {
     private final ItemService itemService;
     private final ItemDao itemDao;
-    private final String SHARER_USER_ID = "X-Sharer-User-Id";
+    private final String sharerUserId = "X-Sharer-User-Id";
 
 
     @Autowired
@@ -25,13 +25,13 @@ public class ItemController {
     }
 
     @PostMapping
-    public Item createItem(@RequestBody ItemDto itemDto, @RequestHeader(SHARER_USER_ID) Long id) {
+    public Item createItem(@RequestBody ItemDto itemDto, @RequestHeader(sharerUserId) Long id) {
         return itemDao.createItem(itemDto, id);
     }
 
     @PatchMapping("/{id}")
     public Item patchItem(@RequestBody Item item,
-                          @RequestHeader(SHARER_USER_ID) Long userId, @PathVariable("id") Long itemId) {
+                          @RequestHeader(sharerUserId) Long userId, @PathVariable("id") Long itemId) {
         return itemDao.patchItem(item, itemId, userId);
     }
 
@@ -41,7 +41,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<Item> getItemsListForUser(@RequestHeader(SHARER_USER_ID) Long userId) {
+    public List<Item> getItemsListForUser(@RequestHeader(sharerUserId) Long userId) {
         return itemService.getItemsListForUser(userId);
     }
 
