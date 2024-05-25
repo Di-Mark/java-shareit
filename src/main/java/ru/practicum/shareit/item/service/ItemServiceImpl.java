@@ -13,7 +13,7 @@ import java.util.Objects;
 
 @Getter
 @Service
-public class    ItemServiceImpl implements ItemService {
+public class ItemServiceImpl implements ItemService {
     private final ItemDao itemDao;
 
     @Autowired
