@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
         checkUserForCreate(user);
         try {
             return userRepository.save(user);
-        }catch (RuntimeException e){
+        } catch (RuntimeException e) {
             throw new RuntimeException();
         }
     }
