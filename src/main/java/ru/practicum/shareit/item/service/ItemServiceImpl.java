@@ -75,8 +75,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDtoBooking getItem(Long id, Long userId) {
-        Item item = itemRepository.findById(id).
-                orElseThrow(() -> new NotFoundException("такого айтема не существует"));
+        Item item = itemRepository.findById(id)
+                        .orElseThrow(() -> new NotFoundException("такого айтема не существует"));
         ItemDtoBooking result = ItemMapper.toItemDtoBooking(item);
         if (Objects.equals(item.getOwner().getId(), userId)) {
             List<Booking> test = bookingRepository.findByItemOrderByStartAsc(item);

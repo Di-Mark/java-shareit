@@ -30,7 +30,7 @@ public class Item {
     private Boolean available;
 
     @ManyToOne
-    @JoinColumn(name="owner_id",referencedColumnName="id")
+    @JoinColumn(name = "owner_id", referencedColumnName = "id")
     private User owner;
 
     @ManyToOne
