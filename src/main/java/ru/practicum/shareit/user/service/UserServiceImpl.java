@@ -10,6 +10,7 @@ import ru.practicum.shareit.user.User;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.user.dao.UserRepository;
 
+import javax.validation.ConstraintViolationException;
 import java.util.List;
 
 
@@ -29,7 +30,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public User createUser(User user) {
         checkUserForCreate(user);
-        return userRepository.save(user);
+        try {
+            return userRepository.save(user);
+        }catch (RuntimeException e){
+            throw new RuntimeException();
+        }
     }
 
     @Transactional
