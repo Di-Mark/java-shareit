@@ -10,7 +10,6 @@ import ru.practicum.shareit.user.User;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.user.dao.UserRepository;
 
-import javax.validation.ConstraintViolationException;
 import java.util.List;
 
 
