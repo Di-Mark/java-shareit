@@ -79,32 +79,32 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<Booking> getBookingForUserByStatus(Long user, String status) {
         User booker = userRepository.findById(user).orElseThrow(() -> new NotFoundException(""));
-        if (status == null || status.equals("") || status.equals("ALL")) {
+        if (status == null || status.equals("") || status.equals(StatusBooking.ALL.name())) {
             return bookingRepository.findByBookerOrderByStartDesc(booker);
         }
-        if (status.equals("CURRENT")) {
+        if (status.equals(StatusBooking.CURRENT.name())) {
             return bookingRepository.findByBookerOrderByStartDesc(booker).stream()
                     .filter(booking -> booking.getStart().isBefore(LocalDateTime.now())
                             && booking.getEnd().isAfter(LocalDateTime.now())).collect(Collectors.toList());
         }
-        if (status.equals("PAST")) {
+        if (status.equals(StatusBooking.PAST.name())) {
             return bookingRepository.findByBookerOrderByStartDesc(booker).stream()
                     .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
                     .collect(Collectors.toList());
         }
-        if (status.equals("FUTURE")) {
+        if (status.equals(StatusBooking.FUTURE.name())) {
             return bookingRepository.findByBookerOrderByStartDesc(booker).stream()
                     .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
                     .collect(Collectors.toList());
         }
-        if (status.equals("WAITING")) {
+        if (status.equals(StatusBooking.WAITING.name())) {
             return bookingRepository.findByBookerOrderByStartDesc(booker).stream()
-                    .filter(booking -> booking.getStatus().name().equals("WAITING"))
+                    .filter(booking -> booking.getStatus().name().equals(StatusBooking.WAITING.name()))
                     .collect(Collectors.toList());
         }
-        if (status.equals("REJECTED")) {
+        if (status.equals(StatusBooking.REJECTED.name())) {
             return bookingRepository.findByBookerOrderByStartDesc(booker).stream()
-                    .filter(booking -> booking.getStatus().name().equals("REJECTED"))
+                    .filter(booking -> booking.getStatus().name().equals(StatusBooking.REJECTED.name()))
                     .collect(Collectors.toList());
         }
         throw new ValidationException("Unknown state: " + status);
