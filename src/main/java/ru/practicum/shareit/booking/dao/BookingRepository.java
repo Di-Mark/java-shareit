@@ -1,5 +1,7 @@
 package ru.practicum.shareit.booking.dao;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.model.Item;
@@ -11,10 +13,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findByBookerOrderByStartDesc(User user);
 
     List<Booking> findByItemInOrderByStartDesc(List<Item> items);
+    Page<Booking> findByBooker(User user, Pageable pageable);
 
-    List<Booking> findByBooker(User user);
-
-    List<Booking> findByItem(Item item);
+    Page<Booking> findByItemIn(List<Item> items,Pageable pageable);
 
     List<Booking> findByItemOrderByStartDesc(Item items);
 

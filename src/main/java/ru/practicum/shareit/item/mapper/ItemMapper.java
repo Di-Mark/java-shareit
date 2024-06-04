@@ -12,9 +12,9 @@ public class ItemMapper {
         itemDto.setDescription(item.getDescription());
         itemDto.setAvailable(item.getAvailable());
         if (item.getRequest() != null) {
-            itemDto.setRequest(item.getRequest());
+            itemDto.setRequestId(item.getRequest().getId());
         } else {
-            itemDto.setRequest(null);
+            itemDto.setRequestId(null);
         }
         return itemDto;
     }
@@ -25,9 +25,6 @@ public class ItemMapper {
         item.setName(itemDto.getName());
         item.setDescription(itemDto.getDescription());
         item.setAvailable(itemDto.getAvailable());
-        if (itemDto.getRequest() != null) {
-            item.setRequest(itemDto.getRequest());
-        } else item.setRequest(null);
         return item;
     }
 
