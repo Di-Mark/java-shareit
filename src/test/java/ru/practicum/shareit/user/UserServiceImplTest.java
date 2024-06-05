@@ -61,10 +61,9 @@ public class UserServiceImplTest {
     @Test
     void patchUser() {
         User user = makeUser("Пётр", "some@email.com");
-        em.persist(user);
-        em.flush();
+        User saveUser = service.createUser(user);
         User newUser = makeUser("Павел", "new@email.com");
-        service.patchUser(newUser, 1L);
+        service.patchUser(newUser, saveUser.getId());
         TypedQuery<User> query = em.createQuery("Select u from User u where u.email = :email", User.class);
         User result = query.setParameter("email", newUser.getEmail())
                 .getSingleResult();
