@@ -21,7 +21,6 @@ import ru.practicum.shareit.user.dao.UserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
