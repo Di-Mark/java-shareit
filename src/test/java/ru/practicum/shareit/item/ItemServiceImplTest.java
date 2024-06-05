@@ -98,16 +98,16 @@ public class ItemServiceImplTest {
 
     @Test
     void getItemsListForUser() {
-        userService.createUser(makeUser("Пётр", "some@email.com"));
+        User user = userService.createUser(makeUser("Пётр", "some@email.com"));
         List<ItemDto> sourceItems = List.of(
                 makeItemDto("name", "desc", true),
                 makeItemDto("name2", "desc2", true),
                 makeItemDto("name3", "desc3", true)
         );
         for (ItemDto itemDto : sourceItems) {
-            itemService.createItem(itemDto, 5L);
+            itemService.createItem(itemDto, user.getId());
         }
-        List<ItemDtoBooking> targetItems = itemService.getItemsListForUser(5L, 0, 20);
+        List<ItemDtoBooking> targetItems = itemService.getItemsListForUser(user.getId(), 0, 20);
         assertThat(targetItems, hasSize(sourceItems.size()));
         for (ItemDto sourceItem : sourceItems) {
             assertThat(targetItems, hasItem(allOf(
