@@ -47,11 +47,10 @@ public class ItemRequestServiceImplTest {
     @Test
     void findRequestById() {
         User user1 = userService.createUser(makeUser("Пётр", "some@email.com"));
-        User user2 = userService.createUser(makeUser("new", "new@email.com"));
         ItemRequest itemRequest = new ItemRequest();
         itemRequest.setDescription("описание");
-        itemRequestService.createRequest(itemRequest, user1.getId());
-        ItemRequestDto result = itemRequestService.findRequestById(user1.getId(), user2.getId());
+        ItemRequestDto itemRequestSave = itemRequestService.createRequest(itemRequest, user1.getId());
+        ItemRequestDto result = itemRequestService.findRequestById(itemRequestSave.getId(), user1.getId());
         assertThat(result.getId(), notNullValue());
         assertThat(result.getDescription(), equalTo(itemRequest.getDescription()));
         assertThat(result.getCreated(), notNullValue());
