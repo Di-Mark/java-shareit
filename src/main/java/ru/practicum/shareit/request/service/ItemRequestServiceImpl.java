@@ -19,6 +19,7 @@ import ru.practicum.shareit.user.dao.UserRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -79,7 +80,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         return itemRequestRepository
                 .findAll(PageRequest.of(from, size, Sort.by(Sort.Direction.DESC, "created"))).stream()
                 .map(itemRequest -> findRequestById(itemRequest.getId(), userId))
-                .filter(itemRequestDto -> itemRequestDto.getId() != userId)
+                .filter(itemRequestDto -> !Objects.equals(itemRequestDto.getId(), userId))
                 .collect(Collectors.toList());
     }
 
