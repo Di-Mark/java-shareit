@@ -110,26 +110,26 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDtoBooking> getItemsListForUser(Long userId,Integer from, Integer size) {
-        if (size < 1 || from < 0){
+    public List<ItemDtoBooking> getItemsListForUser(Long userId, Integer from, Integer size) {
+        if (size < 1 || from < 0) {
             throw new ValidationException("");
         }
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("такого пользователя нет"));
-        return itemRepository.findByOwner(user, PageRequest.of(from,size)).stream()
+        return itemRepository.findByOwner(user, PageRequest.of(from, size)).stream()
                 .map(item -> getItem(item.getId(), userId))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<ItemDto> searchItemsForText(String text,Integer from, Integer size) {
-        if (size < 1 || from < 0){
+    public List<ItemDto> searchItemsForText(String text, Integer from, Integer size) {
+        if (size < 1 || from < 0) {
             throw new ValidationException("");
         }
         if (text == null || text.equals("")) {
             return new ArrayList<>();
         }
 
-        return itemRepository.search(text, PageRequest.of(from,size)).stream()
+        return itemRepository.search(text, PageRequest.of(from, size)).stream()
                 .map(ItemMapper::toItemDto)
                 .filter(ItemDto::getAvailable)
                 .collect(Collectors.toList());

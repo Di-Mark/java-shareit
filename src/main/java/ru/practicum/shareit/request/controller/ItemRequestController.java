@@ -23,23 +23,23 @@ public class ItemRequestController {
     @PostMapping
     public ItemRequestDto createRequest(@RequestBody ItemRequest itemRequest,
                                         @RequestHeader(sharerUserId) Long userId) {
-        return itemRequestService.createRequest(itemRequest,userId);
+        return itemRequestService.createRequest(itemRequest, userId);
     }
 
     @GetMapping
-    public List<ItemRequestDto> getRequestForUser(@RequestHeader(sharerUserId) Long userId){
+    public List<ItemRequestDto> getRequestForUser(@RequestHeader(sharerUserId) Long userId) {
         return itemRequestService.getRequestForUser(userId);
     }
 
     @GetMapping("/{id}")
-    ItemRequestDto findRequestById(@PathVariable("id") Long requestId, @RequestHeader(sharerUserId) Long userId){
-        return itemRequestService.findRequestById(requestId,userId);
+    ItemRequestDto findRequestById(@PathVariable("id") Long requestId, @RequestHeader(sharerUserId) Long userId) {
+        return itemRequestService.findRequestById(requestId, userId);
     }
 
     @GetMapping("/all")
     List<ItemRequestDto> findAllRequest(@RequestParam(defaultValue = "0") Integer from,
                                         @RequestParam(defaultValue = "20") Integer size,
-                                        @RequestHeader(sharerUserId) Long userId){
-        return itemRequestService.findAllRequest(from,size,userId);
+                                        @RequestHeader(sharerUserId) Long userId) {
+        return itemRequestService.findAllRequest(from, size, userId);
     }
 }

@@ -80,45 +80,45 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> getBookingForUserByStatus(Long user, String status,Integer from, Integer size) {
-        if (size < 1 || from < 0){
+    public List<Booking> getBookingForUserByStatus(Long user, String status, Integer from, Integer size) {
+        if (size < 1 || from < 0) {
             throw new ValidationException("");
         }
         User booker = userRepository.findById(user).orElseThrow(() -> new NotFoundException(""));
         if (status == null || status.equals("") || status.equals(StatusBooking.ALL.name())) {
             List<Booking> res = bookingRepository
-                    .findByBooker(booker,PageRequest.of(from,size, Sort.by(Sort.Direction.DESC,"start")))
+                    .findByBooker(booker, PageRequest.of(from, size, Sort.by(Sort.Direction.DESC, "start")))
                     .getContent();
-            if(res.size() == 0){
-                List<Booking> answer =  bookingRepository
+            if (res.size() == 0) {
+                List<Booking> answer = bookingRepository
                         .findByBooker(booker,
-                                PageRequest.of(0,20, Sort.by(Sort.Direction.ASC,"start")))
+                                PageRequest.of(0, 20, Sort.by(Sort.Direction.ASC, "start")))
                         .getContent();
                 return bookingRepository
                         .findByBooker(booker,
-                                PageRequest.of(1,answer.size() - 1,
-                                        Sort.by(Sort.Direction.DESC,"start")))
+                                PageRequest.of(1, answer.size() - 1,
+                                        Sort.by(Sort.Direction.DESC, "start")))
                         .getContent();
             }
             return res;
         }
         if (status.equals(StatusBooking.CURRENT.name())) {
             List<Booking> res = bookingRepository
-                    .findByBooker(booker,PageRequest.of(from,size, Sort.by(Sort.Direction.DESC,"start")))
+                    .findByBooker(booker, PageRequest.of(from, size, Sort.by(Sort.Direction.DESC, "start")))
                     .stream()
                     .filter(booking -> booking.getStart().isBefore(LocalDateTime.now())
                             && booking.getEnd().isAfter(LocalDateTime.now())).collect(Collectors.toList());
-            if(res.size() == 0){
+            if (res.size() == 0) {
                 List<Booking> answer = bookingRepository
                         .findByBooker(booker,
-                                PageRequest.of(0,20, Sort.by(Sort.Direction.ASC,"start")))
+                                PageRequest.of(0, 20, Sort.by(Sort.Direction.ASC, "start")))
                         .stream()
                         .filter(booking -> booking.getStart().isBefore(LocalDateTime.now())
                                 && booking.getEnd().isAfter(LocalDateTime.now())).collect(Collectors.toList());
                 return bookingRepository
                         .findByBooker(booker,
-                                PageRequest.of(1,answer.size() - 1,
-                                        Sort.by(Sort.Direction.DESC,"start")))
+                                PageRequest.of(1, answer.size() - 1,
+                                        Sort.by(Sort.Direction.DESC, "start")))
                         .stream()
                         .filter(booking -> booking.getStart().isBefore(LocalDateTime.now())
                                 && booking.getEnd().isAfter(LocalDateTime.now())).collect(Collectors.toList());
@@ -127,20 +127,21 @@ public class BookingServiceImpl implements BookingService {
         }
         if (status.equals(StatusBooking.PAST.name())) {
             List<Booking> res = bookingRepository
-                    .findByBooker(booker,PageRequest.of(from,size, Sort.by(Sort.Direction.DESC,"start")))
+                    .findByBooker(booker, PageRequest.of(from, size, Sort.by(Sort.Direction.DESC, "start")))
                     .stream()
                     .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
                     .collect(Collectors.toList());
-            if (res.size() == 0){
+            if (res.size() == 0) {
                 List<Booking> answer = bookingRepository
-                        .findByBooker(booker,PageRequest.of(0,20, Sort.by(Sort.Direction.ASC,"start")))
+                        .findByBooker(booker,
+                                PageRequest.of(0, 20, Sort.by(Sort.Direction.ASC, "start")))
                         .stream()
                         .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
                         .collect(Collectors.toList());
                 return bookingRepository
                         .findByBooker(booker,
-                                PageRequest.of(1,answer.size() - 1,
-                                        Sort.by(Sort.Direction.DESC,"start")))
+                                PageRequest.of(1, answer.size() - 1,
+                                        Sort.by(Sort.Direction.DESC, "start")))
                         .stream()
                         .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
                         .collect(Collectors.toList());
@@ -150,21 +151,21 @@ public class BookingServiceImpl implements BookingService {
         }
         if (status.equals(StatusBooking.FUTURE.name())) {
             List<Booking> res = bookingRepository
-                    .findByBooker(booker,PageRequest.of(from,size, Sort.by(Sort.Direction.DESC,"start")))
+                    .findByBooker(booker, PageRequest.of(from, size, Sort.by(Sort.Direction.DESC, "start")))
                     .stream()
                     .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
                     .collect(Collectors.toList());
-            if (res.size() == 0){
+            if (res.size() == 0) {
                 List<Booking> answer = bookingRepository
-                        .findByBooker(booker,PageRequest.of(0,20,
-                                Sort.by(Sort.Direction.ASC,"start")))
+                        .findByBooker(booker, PageRequest.of(0, 20,
+                                Sort.by(Sort.Direction.ASC, "start")))
                         .stream()
                         .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
                         .collect(Collectors.toList());
                 return bookingRepository
                         .findByBooker(booker,
-                                PageRequest.of(1,answer.size() - 1,
-                                        Sort.by(Sort.Direction.DESC,"start")))
+                                PageRequest.of(1, answer.size() - 1,
+                                        Sort.by(Sort.Direction.DESC, "start")))
                         .stream()
                         .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
                         .collect(Collectors.toList());
@@ -173,19 +174,19 @@ public class BookingServiceImpl implements BookingService {
         }
         if (status.equals(StatusBooking.WAITING.name())) {
             List<Booking> res = bookingRepository
-                    .findByBooker(booker,PageRequest.of(from,size, Sort.by(Sort.Direction.DESC,"start")))
+                    .findByBooker(booker, PageRequest.of(from, size, Sort.by(Sort.Direction.DESC, "start")))
                     .stream()
                     .filter(booking -> booking.getStatus().name().equals(StatusBooking.WAITING.name()))
                     .collect(Collectors.toList());
-            if (res.size() == 0){
+            if (res.size() == 0) {
                 List<Booking> answer = bookingRepository
                         .findByBooker(booker,
-                                PageRequest.of(0,20, Sort.by(Sort.Direction.ASC,"start")))
+                                PageRequest.of(0, 20, Sort.by(Sort.Direction.ASC, "start")))
                         .stream()
                         .filter(booking -> booking.getStatus().name().equals(StatusBooking.WAITING.name()))
                         .collect(Collectors.toList());
                 return bookingRepository
-                        .findByBooker(booker,PageRequest.of(0,answer.size() - 1, Sort.by(Sort.Direction.DESC,"start")))
+                        .findByBooker(booker, PageRequest.of(0, answer.size() - 1, Sort.by(Sort.Direction.DESC, "start")))
                         .stream()
                         .filter(booking -> booking.getStatus().name().equals(StatusBooking.WAITING.name()))
                         .collect(Collectors.toList());
@@ -194,21 +195,21 @@ public class BookingServiceImpl implements BookingService {
         }
         if (status.equals(StatusBooking.REJECTED.name())) {
             List<Booking> res = bookingRepository
-                    .findByBooker(booker,PageRequest.of(from,size, Sort.by(Sort.Direction.DESC,"start")))
+                    .findByBooker(booker, PageRequest.of(from, size, Sort.by(Sort.Direction.DESC, "start")))
                     .stream()
                     .filter(booking -> booking.getStatus().name().equals(StatusBooking.REJECTED.name()))
                     .collect(Collectors.toList());
-            if (res.size() == 0){
+            if (res.size() == 0) {
                 List<Booking> answer = bookingRepository
                         .findByBooker(booker,
-                                PageRequest.of(0,20, Sort.by(Sort.Direction.ASC,"start")))
+                                PageRequest.of(0, 20, Sort.by(Sort.Direction.ASC, "start")))
                         .stream()
                         .filter(booking -> booking.getStatus().name().equals(StatusBooking.REJECTED.name()))
                         .collect(Collectors.toList());
                 return bookingRepository
                         .findByBooker(booker,
-                                PageRequest.of(1,answer.size() - 1,
-                                        Sort.by(Sort.Direction.DESC,"start")))
+                                PageRequest.of(1, answer.size() - 1,
+                                        Sort.by(Sort.Direction.DESC, "start")))
                         .stream()
                         .filter(booking -> booking.getStatus().name().equals(StatusBooking.REJECTED.name()))
                         .collect(Collectors.toList());
@@ -219,42 +220,43 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> getBookingForOwnerByStatus(Long userId, String status,Integer from, Integer size) {
-        if (size < 1 || from < 0){
+    public List<Booking> getBookingForOwnerByStatus(Long userId, String status, Integer from, Integer size) {
+        if (size < 1 || from < 0) {
             throw new ValidationException("");
         }
         User owner = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(""));
-        List<Item> itemsOwner = itemRepository.findByOwner(owner, PageRequest.of(0,20)).stream()
+        List<Item> itemsOwner = itemRepository.findByOwner(owner, PageRequest.of(0, 20)).stream()
                 .collect(Collectors.toList());
         if (status == null || status.equals("") || status.equals("ALL")) {
             List<Booking> res = bookingRepository
-                    .findByItemIn(itemsOwner,PageRequest
-                            .of(from,size, Sort.by(Sort.Direction.DESC,"start"))).getContent();
-            if (res.size() == 0){
+                    .findByItemIn(itemsOwner, PageRequest
+                            .of(from, size, Sort.by(Sort.Direction.DESC, "start"))).getContent();
+            if (res.size() == 0) {
                 List<Booking> answer = bookingRepository
-                        .findByItemIn(itemsOwner,PageRequest
-                                .of(0,20, Sort.by(Sort.Direction.ASC,"start"))).getContent();
+                        .findByItemIn(itemsOwner, PageRequest
+                                .of(0, 20, Sort.by(Sort.Direction.ASC, "start"))).getContent();
                 return bookingRepository
-                        .findByItemIn(itemsOwner,PageRequest
-                                .of(1,answer.size() - 1,
-                                        Sort.by(Sort.Direction.DESC,"start"))).getContent();
+                        .findByItemIn(itemsOwner, PageRequest
+                                .of(1, answer.size() - 1,
+                                        Sort.by(Sort.Direction.DESC, "start"))).getContent();
             }
             return res;
         }
         if (status.equals("CURRENT")) {
-            List<Booking> res = bookingRepository.findByItemIn(itemsOwner,PageRequest
-                            .of(from,size, Sort.by(Sort.Direction.DESC,"start"))).stream()
+            List<Booking> res = bookingRepository.findByItemIn(itemsOwner, PageRequest
+                            .of(from, size, Sort.by(Sort.Direction.DESC, "start"))).stream()
                     .filter(booking -> booking.getStart().isBefore(LocalDateTime.now())
                             && booking.getEnd().isAfter(LocalDateTime.now()))
                     .collect(Collectors.toList());
-            if (res.size() == 0){
-                List<Booking> answer = bookingRepository.findByItemIn(itemsOwner,PageRequest
-                                .of(0,20, Sort.by(Sort.Direction.ASC,"start"))).stream()
+            if (res.size() == 0) {
+                List<Booking> answer = bookingRepository.findByItemIn(itemsOwner, PageRequest
+                                .of(0, 20, Sort.by(Sort.Direction.ASC, "start"))).stream()
                         .filter(booking -> booking.getStart().isBefore(LocalDateTime.now())
                                 && booking.getEnd().isAfter(LocalDateTime.now()))
                         .collect(Collectors.toList());
-                return bookingRepository.findByItemIn(itemsOwner,PageRequest
-                                .of(1,answer.size() - 1, Sort.by(Sort.Direction.DESC,"start"))).stream()
+                return bookingRepository.findByItemIn(itemsOwner, PageRequest
+                                .of(1, answer.size() - 1,
+                                        Sort.by(Sort.Direction.DESC, "start"))).stream()
                         .filter(booking -> booking.getStart().isBefore(LocalDateTime.now())
                                 && booking.getEnd().isAfter(LocalDateTime.now()))
                         .collect(Collectors.toList());
@@ -262,69 +264,72 @@ public class BookingServiceImpl implements BookingService {
             return res;
         }
         if (status.equals("PAST")) {
-            List<Booking> res = bookingRepository.findByItemIn(itemsOwner,PageRequest
-                            .of(from,size, Sort.by(Sort.Direction.DESC,"start"))).stream()
+            List<Booking> res = bookingRepository.findByItemIn(itemsOwner, PageRequest
+                            .of(from, size, Sort.by(Sort.Direction.DESC, "start"))).stream()
                     .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
                     .collect(Collectors.toList());
-            if (res.size() == 0){
-                List<Booking> answer = bookingRepository.findByItemIn(itemsOwner,PageRequest
-                                .of(0,20, Sort.by(Sort.Direction.ASC,"start"))).stream()
+            if (res.size() == 0) {
+                List<Booking> answer = bookingRepository.findByItemIn(itemsOwner, PageRequest
+                                .of(0, 20, Sort.by(Sort.Direction.ASC, "start"))).stream()
                         .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
                         .collect(Collectors.toList());
-                return bookingRepository.findByItemIn(itemsOwner,PageRequest
-                                .of(1,answer.size() - 1, Sort.by(Sort.Direction.DESC,"start"))).stream()
+                return bookingRepository.findByItemIn(itemsOwner, PageRequest
+                                .of(1, answer.size() - 1,
+                                        Sort.by(Sort.Direction.DESC, "start"))).stream()
                         .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
                         .collect(Collectors.toList());
             }
             return res;
         }
         if (status.equals("FUTURE")) {
-            List<Booking> res = bookingRepository.findByItemIn(itemsOwner,PageRequest
-                            .of(from,size, Sort.by(Sort.Direction.DESC,"start"))).stream()
+            List<Booking> res = bookingRepository.findByItemIn(itemsOwner, PageRequest
+                            .of(from, size, Sort.by(Sort.Direction.DESC, "start"))).stream()
                     .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
                     .collect(Collectors.toList());
-            if (res.size() == 0){
-                List<Booking> answer = bookingRepository.findByItemIn(itemsOwner,PageRequest
-                                .of(0,20, Sort.by(Sort.Direction.ASC,"start"))).stream()
+            if (res.size() == 0) {
+                List<Booking> answer = bookingRepository.findByItemIn(itemsOwner, PageRequest
+                                .of(0, 20, Sort.by(Sort.Direction.ASC, "start"))).stream()
                         .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
                         .collect(Collectors.toList());
-                return bookingRepository.findByItemIn(itemsOwner,PageRequest
-                                .of(1,answer.size() - 1, Sort.by(Sort.Direction.DESC,"start"))).stream()
+                return bookingRepository.findByItemIn(itemsOwner, PageRequest
+                                .of(1, answer.size() - 1,
+                                        Sort.by(Sort.Direction.DESC, "start"))).stream()
                         .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
                         .collect(Collectors.toList());
             }
             return res;
         }
         if (status.equals("WAITING")) {
-            List<Booking> res = bookingRepository.findByItemIn(itemsOwner,PageRequest
-                            .of(from,size, Sort.by(Sort.Direction.DESC,"start"))).stream()
+            List<Booking> res = bookingRepository.findByItemIn(itemsOwner, PageRequest
+                            .of(from, size, Sort.by(Sort.Direction.DESC, "start"))).stream()
                     .filter(booking -> booking.getStatus().name().equals("WAITING"))
                     .collect(Collectors.toList());
-            if (res.size() == 0){
-                List<Booking> answer = bookingRepository.findByItemIn(itemsOwner,PageRequest
-                                .of(0,20, Sort.by(Sort.Direction.ASC,"start"))).stream()
+            if (res.size() == 0) {
+                List<Booking> answer = bookingRepository.findByItemIn(itemsOwner, PageRequest
+                                .of(0, 20, Sort.by(Sort.Direction.ASC, "start"))).stream()
                         .filter(booking -> booking.getStatus().name().equals("WAITING"))
                         .collect(Collectors.toList());
-                return bookingRepository.findByItemIn(itemsOwner,PageRequest
-                                .of(1,answer.size() - 1,
-                                        Sort.by(Sort.Direction.DESC,"start"))).stream()
+                return bookingRepository.findByItemIn(itemsOwner, PageRequest
+                                .of(1, answer.size() - 1,
+                                        Sort.by(Sort.Direction.DESC, "start"))).stream()
                         .filter(booking -> booking.getStatus().name().equals("WAITING"))
                         .collect(Collectors.toList());
             }
             return res;
         }
         if (status.equals("REJECTED")) {
-            List<Booking> res = bookingRepository.findByItemIn(itemsOwner,PageRequest
-                            .of(from,size, Sort.by(Sort.Direction.DESC,"start"))).stream()
+            List<Booking> res = bookingRepository.findByItemIn(itemsOwner, PageRequest
+                            .of(from, size, Sort.by(Sort.Direction.DESC, "start"))).stream()
                     .filter(booking -> booking.getStatus().name().equals("REJECTED"))
                     .collect(Collectors.toList());
-            if (res.size() == 0){
-                List<Booking> answer = bookingRepository.findByItemIn(itemsOwner,PageRequest
-                                .of(0,20, Sort.by(Sort.Direction.ASC,"start"))).stream()
+            if (res.size() == 0) {
+                List<Booking> answer = bookingRepository.findByItemIn(itemsOwner, PageRequest
+                                .of(0, 20, Sort.by(Sort.Direction.ASC, "start"))).stream()
                         .filter(booking -> booking.getStatus().name().equals("REJECTED"))
                         .collect(Collectors.toList());
-                return bookingRepository.findByItemIn(itemsOwner,PageRequest
-                                .of(1,answer.size() - 1, Sort.by(Sort.Direction.DESC,"start"))).stream()
+                return bookingRepository.findByItemIn(itemsOwner, PageRequest
+                                .of(1, answer.size() - 1,
+                                        Sort.by(Sort.Direction.DESC, "start"))).stream()
                         .filter(booking -> booking.getStatus().name().equals("REJECTED"))
                         .collect(Collectors.toList());
             }

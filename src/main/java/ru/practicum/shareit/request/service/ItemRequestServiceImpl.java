@@ -75,12 +75,12 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public List<ItemRequestDto> findAllRequest(Integer from, Integer size, Long userId) {
-        if (size < 1 || from < 0){
+        if (size < 1 || from < 0) {
             throw new ValidationException("");
         }
         return itemRequestRepository
-                .findAll(PageRequest.of(from,size, Sort.by(Sort.Direction.DESC,"created"))).stream()
-                .map(itemRequest -> findRequestById(itemRequest.getId(),userId))
+                .findAll(PageRequest.of(from, size, Sort.by(Sort.Direction.DESC, "created"))).stream()
+                .map(itemRequest -> findRequestById(itemRequest.getId(), userId))
                 .filter(itemRequestDto -> itemRequestDto.getId() != userId)
                 .collect(Collectors.toList());
     }

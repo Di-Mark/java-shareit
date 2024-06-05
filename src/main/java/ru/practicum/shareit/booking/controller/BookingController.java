@@ -41,7 +41,7 @@ public class BookingController {
                                                    @RequestParam(value = "state", required = false) String status,
                                                    @RequestParam(defaultValue = "0") Integer from,
                                                    @RequestParam(defaultValue = "20") Integer size) {
-        return bookingService.getBookingForUserByStatus(userId, status,from,size);
+        return bookingService.getBookingForUserByStatus(userId, status, from, size);
     }
 
     @GetMapping("/owner")
@@ -49,6 +49,6 @@ public class BookingController {
                                                     @RequestParam(value = "state", required = false) String status,
                                                     @RequestParam(defaultValue = "0") Integer from,
                                                     @RequestParam(defaultValue = "20") Integer size) {
-        return bookingService.getBookingForOwnerByStatus(userId, status,from,size);
+        return bookingService.getBookingForOwnerByStatus(userId, status, from, size);
     }
 }

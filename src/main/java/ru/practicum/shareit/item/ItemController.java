@@ -49,13 +49,13 @@ public class ItemController {
     public List<ItemDtoBooking> getItemsListForUser(@RequestHeader(sharerUserId) Long userId,
                                                     @RequestParam(defaultValue = "0") Integer from,
                                                     @RequestParam(defaultValue = "20") Integer size) {
-        return itemService.getItemsListForUser(userId,from,size);
+        return itemService.getItemsListForUser(userId, from, size);
     }
 
     @GetMapping("/search")
     public List<ItemDto> searchItemsForText(@RequestParam("text") String text,
                                             @RequestParam(defaultValue = "0") Integer from,
                                             @RequestParam(defaultValue = "20") Integer size) {
-        return itemService.searchItemsForText(text,from,size);
+        return itemService.searchItemsForText(text, from, size);
     }
 }
