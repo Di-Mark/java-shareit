@@ -34,7 +34,7 @@ public class ItemServiceImplTest {
     void createItem() {
         ItemDto itemDto = makeItemDto("name", "desc", true);
         userService.createUser(makeUser("Пётр", "some@email.com"));
-        itemService.createItem(itemDto, 6L);
+        itemService.createItem(itemDto, 1L);
         TypedQuery<Item> query = em.createQuery("Select i from Item i where i.name = :name", Item.class);
         Item result = query.setParameter("name", itemDto.getName())
                 .getSingleResult();
@@ -43,7 +43,7 @@ public class ItemServiceImplTest {
         assertThat(result.getDescription(), equalTo(itemDto.getDescription()));
         assertThat(result.getAvailable(), equalTo(itemDto.getAvailable()));
         assertThat(result.getRequest(), equalTo(itemDto.getRequestId()));
-        assertThat(result.getOwner(), equalTo(new User(6L, "Пётр", "some@email.com")));
+        assertThat(result.getOwner(), equalTo(new User(1L, "Пётр", "some@email.com")));
     }
 
     @Test
@@ -55,7 +55,7 @@ public class ItemServiceImplTest {
                 makeItemDto("name3", "desc3", true)
         );
         for (ItemDto itemDto : sourceItems) {
-            itemService.createItem(itemDto, 2L);
+            itemService.createItem(itemDto, 1L);
         }
         List<ItemDto> targetItems = itemService.getAllItems();
         assertThat(targetItems, hasSize(sourceItems.size()));
@@ -89,8 +89,8 @@ public class ItemServiceImplTest {
     void getItem() {
         ItemDto itemDto = makeItemDto("name", "desc", true);
         userService.createUser(makeUser("Пётр", "some@email.com"));
-        itemService.createItem(itemDto, 4L);
-        ItemDtoBooking result = itemService.getItem(8L, 4L);
+        itemService.createItem(itemDto, 1L);
+        ItemDtoBooking result = itemService.getItem(1L, 1L);
         assertThat(result.getId(), notNullValue());
         assertThat(result.getAvailable(), equalTo(itemDto.getAvailable()));
         assertThat(result.getRequest(), equalTo(itemDto.getRequestId()));
@@ -128,7 +128,7 @@ public class ItemServiceImplTest {
                 makeItemDto("name3", "desc3", true)
         );
         for (ItemDto itemDto : sourceItems) {
-            itemService.createItem(itemDto, 3L);
+            itemService.createItem(itemDto, 1L);
         }
         List<ItemDto> targetItems = itemService.searchItemsForText("nAme", 0, 20);
         assertThat(targetItems, hasSize(sourceItems.size()));
