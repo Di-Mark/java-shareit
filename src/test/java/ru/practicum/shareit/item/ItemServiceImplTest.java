@@ -72,17 +72,17 @@ public class ItemServiceImplTest {
     @Test
     void patchItem() {
         ItemDto itemDto = makeItemDto("name", "desc", true);
-        userService.createUser(makeUser("Пётр", "some@email.com"));
-        itemService.createItem(itemDto, 1L);
+        User user = userService.createUser(makeUser("Пётр", "some@email.com"));
+        ItemDto item = itemService.createItem(itemDto, user.getId());
         ItemDto newItem = makeItemDto("new", "new", true);
-        itemService.patchItem(newItem, 1L, 1L);
+        itemService.patchItem(newItem, item.getId(), user.getId());
         TypedQuery<Item> query = em.createQuery("Select i from Item i where i.name = :name", Item.class);
         Item result = query.setParameter("name", newItem.getName())
                 .getSingleResult();
         assertThat(result.getId(), notNullValue());
         assertThat(result.getAvailable(), equalTo(newItem.getAvailable()));
         assertThat(result.getRequest(), equalTo(newItem.getRequestId()));
-        assertThat(result.getOwner(), equalTo(new User(1L, "Пётр", "some@email.com")));
+        assertThat(result.getOwner(), equalTo(new User(user.getId(), "Пётр", "some@email.com")));
     }
 
     @Test
