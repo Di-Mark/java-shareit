@@ -31,10 +31,10 @@ public class ItemRequestServiceImplTest {
 
     @Test
     void createRequest() {
-        userService.createUser(makeUser("Пётр", "some@email.com"));
+        User user = userService.createUser(makeUser("Пётр", "some@email.com"));
         ItemRequest itemRequest = new ItemRequest();
         itemRequest.setDescription("описание");
-        itemRequestService.createRequest(itemRequest, 3L);
+        itemRequestService.createRequest(itemRequest, user.getId());
         TypedQuery<ItemRequest> query =
                 em.createQuery("Select i from ItemRequest i where i.description = :description", ItemRequest.class);
         ItemRequest result = query.setParameter("description", itemRequest.getDescription())
@@ -47,24 +47,17 @@ public class ItemRequestServiceImplTest {
 
     @Test
     void findRequestById() {
-        userService.createUser(makeUser("Пётр", "some@email.com"));
-        userService.createUser(makeUser("new", "new@email.com"));
+        User user1 = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User user2 = userService.createUser(makeUser("new", "new@email.com"));
         ItemRequest itemRequest = new ItemRequest();
         itemRequest.setDescription("описание");
-        itemRequestService.createRequest(itemRequest, 1L);
-        ItemRequestDto result = itemRequestService.findRequestById(1L, 2L);
+        itemRequestService.createRequest(itemRequest, user1.getId());
+        ItemRequestDto result = itemRequestService.findRequestById(user1.getId(), user2.getId());
         assertThat(result.getId(), notNullValue());
         assertThat(result.getDescription(), equalTo(itemRequest.getDescription()));
         assertThat(result.getCreated(), notNullValue());
     }
 
-    private ItemDto makeItemDto(String name, String description, Boolean available) {
-        ItemDto itemDto = new ItemDto();
-        itemDto.setName(name);
-        itemDto.setDescription(description);
-        itemDto.setAvailable(available);
-        return itemDto;
-    }
 
     private User makeUser(String name, String email) {
         User user = new User();

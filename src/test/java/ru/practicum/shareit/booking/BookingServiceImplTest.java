@@ -38,89 +38,92 @@ public class BookingServiceImplTest {
 
     @Test
     void createBooking() {
-        userService.createUser(makeUser("Пётр", "some@email.com"));
-        userService.createUser(makeUser("booker", "booker@email.com"));
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
         ItemDto itemDto = makeItemDto("name", "desc", true);
-        itemService.createItem(itemDto, 3L);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
         BookingDto bookingDto = makeBookingDto(
                 LocalDateTime.of(2024, 6, 6, 12, 12, 12),
-                LocalDateTime.of(2024, 6, 7, 12, 12, 12), 4L, 2L);
-        bookingService.createBooking(bookingDto, 4L);
+                LocalDateTime.of(2024, 6, 7,
+                        12, 12, 12), book.getId(), item.getId());
+        bookingService.createBooking(bookingDto, book.getId());
         TypedQuery<Booking> query = em.createQuery("Select b from Booking b where b.start = :start", Booking.class);
         Booking result = query.setParameter("start", bookingDto.getStart())
                 .getSingleResult();
         assertThat(result.getId(), notNullValue());
         assertThat(result.getStart(), equalTo(bookingDto.getStart()));
         assertThat(result.getEnd(), equalTo(bookingDto.getEnd()));
-        assertThat(result.getBooker(), equalTo(new User(4L, "booker", "booker@email.com")));
+        assertThat(result.getBooker(), equalTo(new User(book.getId(), "booker", "booker@email.com")));
         assertThat(result.getItem(),
-                equalTo(new Item(2L, "name", "desc",
-                        true, new User(3L, "Пётр", "some@email.com"), null)));
+                equalTo(new Item(item.getId(), "name", "desc",
+                        true, new User(ow.getId(), "Пётр", "some@email.com"), null)));
         assertThat(result.getStatus(), equalTo(StatusBooking.WAITING));
     }
 
     @Test
     void changeStatus() {
-        userService.createUser(makeUser("Пётр", "some@email.com"));
-        userService.createUser(makeUser("booker", "booker@email.com"));
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
         ItemDto itemDto = makeItemDto("name", "desc", true);
-        itemService.createItem(itemDto, 17L);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
         BookingDto bookingDto = makeBookingDto(
                 LocalDateTime.of(2024, 6, 6, 12, 12, 12),
-                LocalDateTime.of(2024, 6, 7, 12, 12, 12), 18L, 9L);
-        bookingService.createBooking(bookingDto, 18L);
-        bookingService.changeStatus(9L, 17L, true);
+                LocalDateTime.of(2024, 6, 7,
+                        12, 12, 12), book.getId(), item.getId());
+        Booking booking = bookingService.createBooking(bookingDto, book.getId());
+        bookingService.changeStatus(booking.getId(), ow.getId(), true);
         TypedQuery<Booking> query = em.createQuery("Select b from Booking b where b.start = :start", Booking.class);
         Booking result = query.setParameter("start", bookingDto.getStart())
                 .getSingleResult();
         assertThat(result.getId(), notNullValue());
         assertThat(result.getStart(), equalTo(bookingDto.getStart()));
         assertThat(result.getEnd(), equalTo(bookingDto.getEnd()));
-        assertThat(result.getBooker(), equalTo(new User(18L, "booker", "booker@email.com")));
+        assertThat(result.getBooker(), equalTo(new User(book.getId(), "booker", "booker@email.com")));
         assertThat(result.getItem(),
-                equalTo(new Item(9L, "name", "desc",
-                        true, new User(17L, "Пётр", "some@email.com"), null)));
+                equalTo(new Item(item.getId(), "name", "desc",
+                        true, new User(ow.getId(), "Пётр", "some@email.com"), null)));
         assertThat(result.getStatus(), equalTo(StatusBooking.APPROVED));
     }
 
     @Test
     void getBooking() {
-        userService.createUser(makeUser("Пётр", "some@email.com"));
-        userService.createUser(makeUser("booker", "booker@email.com"));
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
         ItemDto itemDto = makeItemDto("name", "desc", true);
-        itemService.createItem(itemDto, 25L);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
         BookingDto bookingDto = makeBookingDto(
                 LocalDateTime.of(2024, 6, 6, 12, 12, 12),
-                LocalDateTime.of(2024, 6, 7, 12, 12, 12), 26L, 13L);
-        bookingService.createBooking(bookingDto, 26L);
-        Booking result = bookingService.getBooking(13L, 26L);
+                LocalDateTime.of(2024, 6, 7,
+                        12, 12, 12), book.getId(), item.getId());
+        Booking booking = bookingService.createBooking(bookingDto, book.getId());
+        Booking result = bookingService.getBooking(booking.getId(), book.getId());
         assertThat(result.getId(), notNullValue());
         assertThat(result.getStart(), equalTo(bookingDto.getStart()));
         assertThat(result.getEnd(), equalTo(bookingDto.getEnd()));
-        assertThat(result.getBooker(), equalTo(new User(26L, "booker", "booker@email.com")));
+        assertThat(result.getBooker(), equalTo(new User(book.getId(), "booker", "booker@email.com")));
         assertThat(result.getItem(),
-                equalTo(new Item(13L, "name", "desc",
-                        true, new User(25L, "Пётр", "some@email.com"), null)));
+                equalTo(new Item(item.getId(), "name", "desc",
+                        true, new User(ow.getId(), "Пётр", "some@email.com"), null)));
         assertThat(result.getStatus(), equalTo(StatusBooking.WAITING));
     }
 
     @Test
     void getBookingForUserByStatusAll() {
-        userService.createUser(makeUser("Пётр", "some@email.com"));
-        userService.createUser(makeUser("booker", "booker@email.com"));
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
         ItemDto itemDto = makeItemDto("name", "desc", true);
-        itemService.createItem(itemDto, 29L);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
         Booking booking = makeBooking(
                 LocalDateTime.of(2024, 6, 6, 12, 12, 12),
                 LocalDateTime.of(2024, 6, 7, 12, 12, 12),
-                new User(30L, "booker", "booker@email.com"),
-                new Item(15L, "name", "desc", true,
-                        new User(29L, "Пётр", "some@email.com"), null),
+                new User(book.getId(), "booker", "booker@email.com"),
+                new Item(item.getId(), "name", "desc", true,
+                        new User(ow.getId(), "Пётр", "some@email.com"), null),
                 StatusBooking.WAITING);
         List<Booking> sourceList = List.of(booking);
         em.persist(booking);
         em.flush();
-        List<Booking> targetList = bookingService.getBookingForUserByStatus(30L, "ALL", 0, 20);
+        List<Booking> targetList = bookingService.getBookingForUserByStatus(book.getId(), "ALL", 0, 20);
         assertThat(targetList, hasSize(1));
         for (Booking sourceBooking : sourceList) {
             assertThat(targetList, hasItem(allOf(
@@ -136,21 +139,21 @@ public class BookingServiceImplTest {
 
     @Test
     void getBookingForUserByStatusCurrent() {
-        userService.createUser(makeUser("Пётр", "some@email.com"));
-        userService.createUser(makeUser("booker", "booker@email.com"));
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
         ItemDto itemDto = makeItemDto("name", "desc", true);
-        itemService.createItem(itemDto, 7L);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
         Booking booking = makeBooking(
                 LocalDateTime.of(2024, 5, 6, 12, 12, 12),
                 LocalDateTime.of(2024, 6, 7, 12, 12, 12),
-                new User(8L, "booker", "booker@email.com"),
-                new Item(4L, "name", "desc", true,
-                        new User(7L, "Пётр", "some@email.com"), null),
+                new User(book.getId(), "booker", "booker@email.com"),
+                new Item(item.getId(), "name", "desc", true,
+                        new User(ow.getId(), "Пётр", "some@email.com"), null),
                 StatusBooking.WAITING);
         List<Booking> sourceList = List.of(booking);
         em.persist(booking);
         em.flush();
-        List<Booking> targetList = bookingService.getBookingForUserByStatus(8L, "CURRENT", 0, 20);
+        List<Booking> targetList = bookingService.getBookingForUserByStatus(book.getId(), "CURRENT", 0, 20);
         assertThat(targetList, hasSize(1));
         for (Booking sourceBooking : sourceList) {
             assertThat(targetList, hasItem(allOf(
@@ -166,21 +169,21 @@ public class BookingServiceImplTest {
 
     @Test
     void getBookingForUserByStatusPast() {
-        userService.createUser(makeUser("Пётр", "some@email.com"));
-        userService.createUser(makeUser("booker", "booker@email.com"));
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
         ItemDto itemDto = makeItemDto("name", "desc", true);
-        itemService.createItem(itemDto, 27L);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
         Booking booking = makeBooking(
                 LocalDateTime.of(2024, 3, 6, 12, 12, 12),
                 LocalDateTime.of(2024, 4, 7, 12, 12, 12),
-                new User(28L, "booker", "booker@email.com"),
-                new Item(14L, "name", "desc", true,
-                        new User(27L, "Пётр", "some@email.com"), null),
+                new User(book.getId(), "booker", "booker@email.com"),
+                new Item(item.getId(), "name", "desc", true,
+                        new User(ow.getId(), "Пётр", "some@email.com"), null),
                 StatusBooking.WAITING);
         List<Booking> sourceList = List.of(booking);
         em.persist(booking);
         em.flush();
-        List<Booking> targetList = bookingService.getBookingForUserByStatus(28L, "PAST", 0, 20);
+        List<Booking> targetList = bookingService.getBookingForUserByStatus(book.getId(), "PAST", 0, 20);
         assertThat(targetList, hasSize(1));
         for (Booking sourceBooking : sourceList) {
             assertThat(targetList, hasItem(allOf(
@@ -196,21 +199,21 @@ public class BookingServiceImplTest {
 
     @Test
     void getBookingForUserByStatusFuture() {
-        userService.createUser(makeUser("Пётр", "some@email.com"));
-        userService.createUser(makeUser("booker", "booker@email.com"));
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
         ItemDto itemDto = makeItemDto("name", "desc", true);
-        itemService.createItem(itemDto, 19L);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
         Booking booking = makeBooking(
                 LocalDateTime.of(2024, 6, 6, 12, 12, 12),
                 LocalDateTime.of(2024, 6, 7, 12, 12, 12),
-                new User(20L, "booker", "booker@email.com"),
-                new Item(10L, "name", "desc", true,
-                        new User(19L, "Пётр", "some@email.com"), null),
+                new User(book.getId(), "booker", "booker@email.com"),
+                new Item(item.getId(), "name", "desc", true,
+                        new User(ow.getId(), "Пётр", "some@email.com"), null),
                 StatusBooking.WAITING);
         List<Booking> sourceList = List.of(booking);
         em.persist(booking);
         em.flush();
-        List<Booking> targetList = bookingService.getBookingForUserByStatus(20L, "FUTURE", 0, 20);
+        List<Booking> targetList = bookingService.getBookingForUserByStatus(book.getId(), "FUTURE", 0, 20);
         assertThat(targetList, hasSize(1));
         for (Booking sourceBooking : sourceList) {
             assertThat(targetList, hasItem(allOf(
@@ -226,21 +229,21 @@ public class BookingServiceImplTest {
 
     @Test
     void getBookingForUserByStatusWaiting() {
-        userService.createUser(makeUser("Пётр", "some@email.com"));
-        userService.createUser(makeUser("booker", "booker@email.com"));
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
         ItemDto itemDto = makeItemDto("name", "desc", true);
-        itemService.createItem(itemDto, 5L);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
         Booking booking = makeBooking(
                 LocalDateTime.of(2024, 6, 6, 12, 12, 12),
                 LocalDateTime.of(2024, 6, 7, 12, 12, 12),
-                new User(6L, "booker", "booker@email.com"),
-                new Item(3L, "name", "desc", true,
-                        new User(5L, "Пётр", "some@email.com"), null),
+                new User(book.getId(), "booker", "booker@email.com"),
+                new Item(item.getId(), "name", "desc", true,
+                        new User(ow.getId(), "Пётр", "some@email.com"), null),
                 StatusBooking.WAITING);
         List<Booking> sourceList = List.of(booking);
         em.persist(booking);
         em.flush();
-        List<Booking> targetList = bookingService.getBookingForUserByStatus(6L, "WAITING", 0, 20);
+        List<Booking> targetList = bookingService.getBookingForUserByStatus(book.getId(), "WAITING", 0, 20);
         assertThat(targetList, hasSize(1));
         for (Booking sourceBooking : sourceList) {
             assertThat(targetList, hasItem(allOf(
@@ -256,21 +259,21 @@ public class BookingServiceImplTest {
 
     @Test
     void getBookingForUserByStatusRejected() {
-        userService.createUser(makeUser("Пётр", "some@email.com"));
-        userService.createUser(makeUser("booker", "booker@email.com"));
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
         ItemDto itemDto = makeItemDto("name", "desc", true);
-        itemService.createItem(itemDto, 11L);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
         Booking booking = makeBooking(
                 LocalDateTime.of(2024, 6, 6, 12, 12, 12),
                 LocalDateTime.of(2024, 6, 7, 12, 12, 12),
-                new User(12L, "booker", "booker@email.com"),
-                new Item(6L, "name", "desc", true,
-                        new User(11L, "Пётр", "some@email.com"), null),
+                new User(book.getId(), "booker", "booker@email.com"),
+                new Item(item.getId(), "name", "desc", true,
+                        new User(ow.getId(), "Пётр", "some@email.com"), null),
                 StatusBooking.REJECTED);
         List<Booking> sourceList = List.of(booking);
         em.persist(booking);
         em.flush();
-        List<Booking> targetList = bookingService.getBookingForUserByStatus(12L, "REJECTED", 0, 20);
+        List<Booking> targetList = bookingService.getBookingForUserByStatus(book.getId(), "REJECTED", 0, 20);
         assertThat(targetList, hasSize(1));
         for (Booking sourceBooking : sourceList) {
             assertThat(targetList, hasItem(allOf(
@@ -286,21 +289,21 @@ public class BookingServiceImplTest {
 
     @Test
     void getBookingForOwnerByStatusAll() {
-        userService.createUser(makeUser("Пётр", "some@email.com"));
-        userService.createUser(makeUser("booker", "booker@email.com"));
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
         ItemDto itemDto = makeItemDto("name", "desc", true);
-        itemService.createItem(itemDto, 9L);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
         Booking booking = makeBooking(
                 LocalDateTime.of(2024, 6, 6, 12, 12, 12),
                 LocalDateTime.of(2024, 6, 7, 12, 12, 12),
-                new User(10L, "booker", "booker@email.com"),
-                new Item(5L, "name", "desc", true,
-                        new User(9L, "Пётр", "some@email.com"), null),
+                new User(book.getId(), "booker", "booker@email.com"),
+                new Item(item.getId(), "name", "desc", true,
+                        new User(ow.getId(), "Пётр", "some@email.com"), null),
                 StatusBooking.WAITING);
         List<Booking> sourceList = List.of(booking);
         em.persist(booking);
         em.flush();
-        List<Booking> targetList = bookingService.getBookingForOwnerByStatus(9L, "ALL", 0, 20);
+        List<Booking> targetList = bookingService.getBookingForOwnerByStatus(ow.getId(), "ALL", 0, 20);
         assertThat(targetList, hasSize(1));
         for (Booking sourceBooking : sourceList) {
             assertThat(targetList, hasItem(allOf(
@@ -316,21 +319,21 @@ public class BookingServiceImplTest {
 
     @Test
     void getBookingForOwnerByStatusCurrent() {
-        userService.createUser(makeUser("Пётр", "some@email.com"));
-        userService.createUser(makeUser("booker", "booker@email.com"));
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
         ItemDto itemDto = makeItemDto("name", "desc", true);
-        itemService.createItem(itemDto, 23L);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
         Booking booking = makeBooking(
                 LocalDateTime.of(2024, 5, 6, 12, 12, 12),
                 LocalDateTime.of(2024, 6, 7, 12, 12, 12),
-                new User(24L, "booker", "booker@email.com"),
-                new Item(12L, "name", "desc", true,
-                        new User(23L, "Пётр", "some@email.com"), null),
+                new User(book.getId(), "booker", "booker@email.com"),
+                new Item(item.getId(), "name", "desc", true,
+                        new User(ow.getId(), "Пётр", "some@email.com"), null),
                 StatusBooking.WAITING);
         List<Booking> sourceList = List.of(booking);
         em.persist(booking);
         em.flush();
-        List<Booking> targetList = bookingService.getBookingForOwnerByStatus(23L, "CURRENT", 0, 20);
+        List<Booking> targetList = bookingService.getBookingForOwnerByStatus(ow.getId(), "CURRENT", 0, 20);
         assertThat(targetList, hasSize(1));
         for (Booking sourceBooking : sourceList) {
             assertThat(targetList, hasItem(allOf(
@@ -346,21 +349,21 @@ public class BookingServiceImplTest {
 
     @Test
     void getBookingForOwnerByStatusPast() {
-        userService.createUser(makeUser("Пётр", "some@email.com"));
-        userService.createUser(makeUser("booker", "booker@email.com"));
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
         ItemDto itemDto = makeItemDto("name", "desc", true);
-        itemService.createItem(itemDto, 15L);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
         Booking booking = makeBooking(
                 LocalDateTime.of(2024, 3, 6, 12, 12, 12),
                 LocalDateTime.of(2024, 4, 7, 12, 12, 12),
-                new User(16L, "booker", "booker@email.com"),
-                new Item(8L, "name", "desc", true,
-                        new User(15L, "Пётр", "some@email.com"), null),
+                new User(book.getId(), "booker", "booker@email.com"),
+                new Item(item.getId(), "name", "desc", true,
+                        new User(ow.getId(), "Пётр", "some@email.com"), null),
                 StatusBooking.WAITING);
         List<Booking> sourceList = List.of(booking);
         em.persist(booking);
         em.flush();
-        List<Booking> targetList = bookingService.getBookingForOwnerByStatus(15L, "PAST", 0, 20);
+        List<Booking> targetList = bookingService.getBookingForOwnerByStatus(ow.getId(), "PAST", 0, 20);
         assertThat(targetList, hasSize(1));
         for (Booking sourceBooking : sourceList) {
             assertThat(targetList, hasItem(allOf(
@@ -376,21 +379,21 @@ public class BookingServiceImplTest {
 
     @Test
     void getBookingForOwnerByStatusFuture() {
-        userService.createUser(makeUser("Пётр", "some@email.com"));
-        userService.createUser(makeUser("booker", "booker@email.com"));
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
         ItemDto itemDto = makeItemDto("name", "desc", true);
-        itemService.createItem(itemDto, 13L);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
         Booking booking = makeBooking(
                 LocalDateTime.of(2024, 6, 6, 12, 12, 12),
                 LocalDateTime.of(2024, 6, 7, 12, 12, 12),
-                new User(14L, "booker", "booker@email.com"),
-                new Item(7L, "name", "desc", true,
-                        new User(13L, "Пётр", "some@email.com"), null),
+                new User(book.getId(), "booker", "booker@email.com"),
+                new Item(item.getId(), "name", "desc", true,
+                        new User(ow.getId(), "Пётр", "some@email.com"), null),
                 StatusBooking.WAITING);
         List<Booking> sourceList = List.of(booking);
         em.persist(booking);
         em.flush();
-        List<Booking> targetList = bookingService.getBookingForOwnerByStatus(13L, "FUTURE", 0, 20);
+        List<Booking> targetList = bookingService.getBookingForOwnerByStatus(ow.getId(), "FUTURE", 0, 20);
         assertThat(targetList, hasSize(1));
         for (Booking sourceBooking : sourceList) {
             assertThat(targetList, hasItem(allOf(
@@ -406,21 +409,21 @@ public class BookingServiceImplTest {
 
     @Test
     void getBookingForOwnerByStatusWaiting() {
-        userService.createUser(makeUser("Пётр", "some@email.com"));
-        userService.createUser(makeUser("booker", "booker@email.com"));
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
         ItemDto itemDto = makeItemDto("name", "desc", true);
-        itemService.createItem(itemDto, 21L);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
         Booking booking = makeBooking(
                 LocalDateTime.of(2024, 6, 6, 12, 12, 12),
                 LocalDateTime.of(2024, 6, 7, 12, 12, 12),
-                new User(22L, "booker", "booker@email.com"),
-                new Item(11L, "name", "desc", true,
-                        new User(21L, "Пётр", "some@email.com"), null),
+                new User(book.getId(), "booker", "booker@email.com"),
+                new Item(item.getId(), "name", "desc", true,
+                        new User(ow.getId(), "Пётр", "some@email.com"), null),
                 StatusBooking.WAITING);
         List<Booking> sourceList = List.of(booking);
         em.persist(booking);
         em.flush();
-        List<Booking> targetList = bookingService.getBookingForOwnerByStatus(21L, "WAITING", 0, 20);
+        List<Booking> targetList = bookingService.getBookingForOwnerByStatus(ow.getId(), "WAITING", 0, 20);
         assertThat(targetList, hasSize(1));
         for (Booking sourceBooking : sourceList) {
             assertThat(targetList, hasItem(allOf(
@@ -436,22 +439,21 @@ public class BookingServiceImplTest {
 
     @Test
     void getBookingForOwnerByStatusRejected() {
-        userService.createUser(makeUser("Пётр", "some@email.com"));
-        userService.createUser(makeUser("booker", "booker@email.com"));
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
         ItemDto itemDto = makeItemDto("name", "desc", true);
-
-        itemService.createItem(itemDto, 1L);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
         Booking booking = makeBooking(
                 LocalDateTime.of(2024, 6, 6, 12, 12, 12),
                 LocalDateTime.of(2024, 6, 7, 12, 12, 12),
-                new User(2L, "booker", "booker@email.com"),
-                new Item(1L, "name", "desc", true,
-                        new User(1L, "Пётр", "some@email.com"), null),
+                new User(book.getId(), "booker", "booker@email.com"),
+                new Item(item.getId(), "name", "desc", true,
+                        new User(ow.getId(), "Пётр", "some@email.com"), null),
                 StatusBooking.REJECTED);
         List<Booking> sourceList = List.of(booking);
         em.persist(booking);
         em.flush();
-        List<Booking> targetList = bookingService.getBookingForOwnerByStatus(1L, "REJECTED", 0, 20);
+        List<Booking> targetList = bookingService.getBookingForOwnerByStatus(ow.getId(), "REJECTED", 0, 20);
         assertThat(targetList, hasSize(1));
         for (Booking sourceBooking : sourceList) {
             assertThat(targetList, hasItem(allOf(

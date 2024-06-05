@@ -14,6 +14,7 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.when;
 
 @Transactional
 @SpringBootTest(
@@ -61,7 +62,8 @@ public class UserServiceImplTest {
     @Test
     void patchUser() {
         User user = makeUser("Пётр", "some@email.com");
-        service.createUser(user);
+        em.persist(user);
+        em.flush();
         User newUser = makeUser("Павел", "new@email.com");
         service.patchUser(newUser, 1L);
         TypedQuery<User> query = em.createQuery("Select u from User u where u.email = :email", User.class);
@@ -75,8 +77,9 @@ public class UserServiceImplTest {
     @Test
     void getUser() {
         User user = makeUser("Пётр", "some@email.com");
-        service.createUser(user);
-        User targetUser = service.getUser(2L);
+        User saveUser = service.createUser(user);
+
+        User targetUser = service.getUser(saveUser.getId());
         TypedQuery<User> query = em.createQuery("Select u from User u where u.email = :email", User.class);
         User result = query.setParameter("email", targetUser.getEmail())
                 .getSingleResult();
@@ -88,8 +91,8 @@ public class UserServiceImplTest {
     @Test
     void deleteUser() {
         User user = makeUser("Пётр", "some@email.com");
-        service.createUser(user);
-        service.deleteUser(4L);
+        User saveUser = service.createUser(user);
+        service.deleteUser(saveUser.getId());
         List<User> targetUsers = service.findAllUsers();
         assertThat(targetUsers, hasSize(0));
     }

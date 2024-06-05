@@ -9,6 +9,7 @@ import ru.practicum.shareit.item.dto.ItemDtoBooking;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.persistence.EntityManager;
@@ -33,8 +34,8 @@ public class ItemServiceImplTest {
     @Test
     void createItem() {
         ItemDto itemDto = makeItemDto("name", "desc", true);
-        userService.createUser(makeUser("Пётр", "some@email.com"));
-        itemService.createItem(itemDto, 1L);
+        User userSave = userService.createUser(makeUser("Пётр", "some@email.com"));
+        itemService.createItem(itemDto, userSave.getId());
         TypedQuery<Item> query = em.createQuery("Select i from Item i where i.name = :name", Item.class);
         Item result = query.setParameter("name", itemDto.getName())
                 .getSingleResult();
@@ -43,19 +44,19 @@ public class ItemServiceImplTest {
         assertThat(result.getDescription(), equalTo(itemDto.getDescription()));
         assertThat(result.getAvailable(), equalTo(itemDto.getAvailable()));
         assertThat(result.getRequest(), equalTo(itemDto.getRequestId()));
-        assertThat(result.getOwner(), equalTo(new User(1L, "Пётр", "some@email.com")));
+        assertThat(result.getOwner(), equalTo(new User(userSave.getId(), "Пётр", "some@email.com")));
     }
 
     @Test
     void getAllItems() {
-        userService.createUser(makeUser("Пётр", "some@email.com"));
+        User user = userService.createUser(makeUser("Пётр", "some@email.com"));
         List<ItemDto> sourceItems = List.of(
                 makeItemDto("name", "desc", true),
                 makeItemDto("name2", "desc2", true),
                 makeItemDto("name3", "desc3", true)
         );
         for (ItemDto itemDto : sourceItems) {
-            itemService.createItem(itemDto, 1L);
+            itemService.createItem(itemDto, user.getId());
         }
         List<ItemDto> targetItems = itemService.getAllItems();
         assertThat(targetItems, hasSize(sourceItems.size()));
@@ -88,9 +89,9 @@ public class ItemServiceImplTest {
     @Test
     void getItem() {
         ItemDto itemDto = makeItemDto("name", "desc", true);
-        userService.createUser(makeUser("Пётр", "some@email.com"));
-        itemService.createItem(itemDto, 1L);
-        ItemDtoBooking result = itemService.getItem(1L, 1L);
+        User user = userService.createUser(makeUser("Пётр", "some@email.com"));
+        ItemDto item = itemService.createItem(itemDto, user.getId());
+        ItemDtoBooking result = itemService.getItem(item.getId(), user.getId());
         assertThat(result.getId(), notNullValue());
         assertThat(result.getAvailable(), equalTo(itemDto.getAvailable()));
         assertThat(result.getRequest(), equalTo(itemDto.getRequestId()));
@@ -121,14 +122,14 @@ public class ItemServiceImplTest {
 
     @Test
     void searchItemsForText() {
-        userService.createUser(makeUser("Пётр", "some@email.com"));
+        User user = userService.createUser(makeUser("Пётр", "some@email.com"));
         List<ItemDto> sourceItems = List.of(
                 makeItemDto("name", "desc", true),
                 makeItemDto("name2", "desc2", true),
                 makeItemDto("name3", "desc3", true)
         );
         for (ItemDto itemDto : sourceItems) {
-            itemService.createItem(itemDto, 1L);
+            itemService.createItem(itemDto, user.getId());
         }
         List<ItemDto> targetItems = itemService.searchItemsForText("nAme", 0, 20);
         assertThat(targetItems, hasSize(sourceItems.size()));
