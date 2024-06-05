@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.service.ItemRequestService;
@@ -16,8 +15,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
 
-import java.util.List;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.notNullValue;
@@ -27,9 +24,8 @@ import static org.hamcrest.Matchers.notNullValue;
         properties = "db.name=test",
         webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class ItemRequestServiceImpl {
+public class ItemRequestServiceImplTest {
     private final EntityManager em;
-    private final ItemService itemService;
     private final UserService userService;
     private final ItemRequestService itemRequestService;
 
@@ -38,7 +34,6 @@ public class ItemRequestServiceImpl {
         userService.createUser(makeUser("Пётр", "some@email.com"));
         ItemRequest itemRequest = new ItemRequest();
         itemRequest.setDescription("описание");
-        List<User> users = userService.findAllUsers();
         itemRequestService.createRequest(itemRequest, 3L);
         TypedQuery<ItemRequest> query =
                 em.createQuery("Select i from ItemRequest i where i.description = :description", ItemRequest.class);

@@ -89,7 +89,6 @@ public class UserServiceImplTest {
     void deleteUser() {
         User user = makeUser("Пётр", "some@email.com");
         service.createUser(user);
-        List<User> targetUser = service.findAllUsers();
         service.deleteUser(4L);
         List<User> targetUsers = service.findAllUsers();
         assertThat(targetUsers, hasSize(0));

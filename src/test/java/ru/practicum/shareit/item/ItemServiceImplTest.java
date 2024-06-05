@@ -43,7 +43,7 @@ public class ItemServiceImplTest {
         assertThat(result.getDescription(), equalTo(itemDto.getDescription()));
         assertThat(result.getAvailable(), equalTo(itemDto.getAvailable()));
         assertThat(result.getRequest(), equalTo(itemDto.getRequestId()));
-        assertThat(result.getOwner(), equalTo(new User(6l, "Пётр", "some@email.com")));
+        assertThat(result.getOwner(), equalTo(new User(6L, "Пётр", "some@email.com")));
     }
 
     @Test
@@ -55,7 +55,7 @@ public class ItemServiceImplTest {
                 makeItemDto("name3", "desc3", true)
         );
         for (ItemDto itemDto : sourceItems) {
-            itemService.createItem(itemDto, 2l);
+            itemService.createItem(itemDto, 2L);
         }
         List<ItemDto> targetItems = itemService.getAllItems();
         assertThat(targetItems, hasSize(sourceItems.size()));
@@ -82,7 +82,7 @@ public class ItemServiceImplTest {
         assertThat(result.getId(), notNullValue());
         assertThat(result.getAvailable(), equalTo(newItem.getAvailable()));
         assertThat(result.getRequest(), equalTo(newItem.getRequestId()));
-        assertThat(result.getOwner(), equalTo(new User(1l, "Пётр", "some@email.com")));
+        assertThat(result.getOwner(), equalTo(new User(1L, "Пётр", "some@email.com")));
     }
 
     @Test
@@ -90,8 +90,7 @@ public class ItemServiceImplTest {
         ItemDto itemDto = makeItemDto("name", "desc", true);
         userService.createUser(makeUser("Пётр", "some@email.com"));
         itemService.createItem(itemDto, 4L);
-        List<ItemDto> items = itemService.getAllItems();
-        ItemDtoBooking result = itemService.getItem(8L, 4l);
+        ItemDtoBooking result = itemService.getItem(8L, 4L);
         assertThat(result.getId(), notNullValue());
         assertThat(result.getAvailable(), equalTo(itemDto.getAvailable()));
         assertThat(result.getRequest(), equalTo(itemDto.getRequestId()));
@@ -106,7 +105,7 @@ public class ItemServiceImplTest {
                 makeItemDto("name3", "desc3", true)
         );
         for (ItemDto itemDto : sourceItems) {
-            itemService.createItem(itemDto, 5l);
+            itemService.createItem(itemDto, 5L);
         }
         List<ItemDtoBooking> targetItems = itemService.getItemsListForUser(5L, 0, 20);
         assertThat(targetItems, hasSize(sourceItems.size()));
@@ -129,7 +128,7 @@ public class ItemServiceImplTest {
                 makeItemDto("name3", "desc3", true)
         );
         for (ItemDto itemDto : sourceItems) {
-            itemService.createItem(itemDto, 3l);
+            itemService.createItem(itemDto, 3L);
         }
         List<ItemDto> targetItems = itemService.searchItemsForText("nAme", 0, 20);
         assertThat(targetItems, hasSize(sourceItems.size()));
