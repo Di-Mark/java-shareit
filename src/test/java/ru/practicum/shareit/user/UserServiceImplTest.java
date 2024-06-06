@@ -1,9 +1,11 @@
 package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.persistence.EntityManager;
@@ -34,6 +36,22 @@ public class UserServiceImplTest {
         assertThat(result.getId(), notNullValue());
         assertThat(result.getName(), equalTo(user.getName()));
         assertThat(result.getEmail(), equalTo(user.getEmail()));
+    }
+
+    @Test
+    void createEqualsEmail() {
+        User user = makeUser("Пётр", "some@email.com");
+        User user2 = makeUser("Пётр", "some@email.com");
+        service.createUser(user);
+        RuntimeException e = Assertions.assertThrows(RuntimeException.class, () -> service.createUser(user2));
+        Assertions.assertEquals(e.getMessage(), null);
+    }
+
+    @Test
+    void createWithEmptyName() {
+        User user = makeUser("", "some@email.com");
+        ValidationException e = Assertions.assertThrows(ValidationException.class, () -> service.createUser(user));
+        Assertions.assertEquals(e.getMessage(), "Имя пользователя не может быть пустым");
     }
 
     @Test

@@ -51,6 +51,7 @@ public class ItemServiceImplTest {
         assertThat(result.getOwner(), equalTo(new User(userSave.getId(), "Пётр", "some@email.com")));
     }
 
+
     @Test
     void getAllItems() {
         User user = userService.createUser(makeUser("Пётр", "some@email.com"));
