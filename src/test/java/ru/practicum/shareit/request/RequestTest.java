@@ -10,11 +10,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class RequestTest {
 
     @Test
-    void equalTest(){
-        ItemRequest itemRequest1 = new ItemRequest(1L,"desc",null,
+    void equalTest() {
+        ItemRequest itemRequest1 = new ItemRequest(1L, "desc", null,
                 LocalDateTime.of(2010, 12, 12, 12, 21, 12));
-        ItemRequest itemRequest2 = new ItemRequest(1L,"desc",null,
+        ItemRequest itemRequest2 = new ItemRequest(1L, "desc", null,
                 LocalDateTime.of(2010, 12, 12, 12, 21, 12));
-        assertEquals(itemRequest1.equals(itemRequest2),true);
+        assertEquals(itemRequest1.equals(itemRequest2), true);
     }
 }
