@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ItemRequestMapperTest {
 
     @Test
-    void ItemRequestDto() {
+    void toItemRequestDto() {
         ItemRequest itemRequest = new ItemRequest(1L, "desc", null, LocalDateTime.now());
         ItemRequestDto itemRequestDto = ItemRequestMapper.toItemRequestDto(itemRequest);
         assertEquals(itemRequest.getId(), itemRequestDto.getId());
