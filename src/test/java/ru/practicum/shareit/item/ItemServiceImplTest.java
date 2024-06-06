@@ -4,6 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.StatusBooking;
+import ru.practicum.shareit.item.comment.dao.CommentRepository;
+import ru.practicum.shareit.item.comment.dto.CommentDto;
+import ru.practicum.shareit.item.comment.model.Comment;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoBooking;
 import ru.practicum.shareit.item.model.Item;
@@ -15,6 +20,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -142,6 +148,28 @@ public class ItemServiceImplTest {
         }
     }
 
+    @Test
+    void addComment() {
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
+        ItemDto itemDto = makeItemDto("name", "desc", true);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
+        Booking booking = makeBooking(
+                LocalDateTime.of(2024, 3, 6, 12, 12, 12),
+                LocalDateTime.of(2024, 4, 7, 12, 12, 12),
+                new User(book.getId(), "booker", "booker@email.com"),
+                new Item(item.getId(), "name", "desc", true,
+                        new User(ow.getId(), "Пётр", "some@email.com"), null),
+                StatusBooking.WAITING);
+        em.persist(booking);
+        em.flush();
+        Comment comment = new Comment();
+        comment.setText("text");
+        CommentDto result = itemService.addComment(comment, item.getId(), book.getId());
+        assertThat(result.getId(), notNullValue());
+        assertThat(result.getText(), equalTo(comment.getText()));
+        assertThat(result.getItem().getId(), equalTo(item.getId()));
+    }
 
     private ItemDto makeItemDto(String name, String description, Boolean available) {
         ItemDto itemDto = new ItemDto();
@@ -156,5 +184,15 @@ public class ItemServiceImplTest {
         user.setName(name);
         user.setEmail(email);
         return user;
+    }
+
+    private Booking makeBooking(LocalDateTime start, LocalDateTime end, User booker, Item item, StatusBooking status) {
+        Booking booking = new Booking();
+        booking.setStart(start);
+        booking.setEnd(end);
+        booking.setBooker(booker);
+        booking.setItem(item);
+        booking.setStatus(status);
+        return booking;
     }
 }
