@@ -95,6 +95,7 @@ public class UserServiceImplTest {
         assertThat(targetUsers, hasSize(0));
     }
 
+
     private User makeUser(String name, String email) {
         User user = new User();
         user.setName(name);

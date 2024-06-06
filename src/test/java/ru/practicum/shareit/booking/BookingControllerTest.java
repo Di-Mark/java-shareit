@@ -17,6 +17,7 @@ import ru.practicum.shareit.booking.service.BookingService;
 
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 
 import static org.hamcrest.Matchers.*;
@@ -100,5 +101,39 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$.start", is(booking.getStart())))
                 .andExpect(jsonPath("$.end", is(booking.getEnd())))
                 .andExpect(jsonPath("$.item", is(booking.getItem())));
+    }
+
+    @Test
+    void getBookingForUserByStatus() throws Exception {
+        when(bookingService.getBookingForUserByStatus(any(), any(), any(), any()))
+                .thenReturn(List.of(booking));
+        mvc.perform(get("/bookings")
+                        .content(mapper.writeValueAsString(booking))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", "1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id", is(booking.getId()), Long.class))
+                .andExpect(jsonPath("$[0].start", is(booking.getStart())))
+                .andExpect(jsonPath("$[0].end", is(booking.getEnd())))
+                .andExpect(jsonPath("$[0].item", is(booking.getItem())));
+    }
+
+    @Test
+    void getBookingForOwnerByStatus() throws Exception {
+        when(bookingService.getBookingForOwnerByStatus(any(), any(), any(), any()))
+                .thenReturn(List.of(booking));
+        mvc.perform(get("/bookings/owner")
+                        .content(mapper.writeValueAsString(booking))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", "1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id", is(booking.getId()), Long.class))
+                .andExpect(jsonPath("$[0].start", is(booking.getStart())))
+                .andExpect(jsonPath("$[0].end", is(booking.getEnd())))
+                .andExpect(jsonPath("$[0].item", is(booking.getItem())));
     }
 }
