@@ -63,7 +63,6 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.email", is(user.getEmail())));
     }
 
-
     @Test
     void findAllUsers() throws Exception {
         when(userService.findAllUsers())
