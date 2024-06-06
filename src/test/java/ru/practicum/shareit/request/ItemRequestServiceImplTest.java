@@ -14,6 +14,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
 
+import java.util.List;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.notNullValue;
@@ -56,6 +58,30 @@ public class ItemRequestServiceImplTest {
         assertThat(result.getCreated(), notNullValue());
     }
 
+    @Test
+    void getRequestForUser() {
+        User user1 = userService.createUser(makeUser("Пётр", "some@email.com"));
+        ItemRequest itemRequest = new ItemRequest();
+        itemRequest.setDescription("описание");
+        ItemRequestDto itemRequestSave = itemRequestService.createRequest(itemRequest, user1.getId());
+        List<ItemRequestDto> result = itemRequestService.getRequestForUser(user1.getId());
+        assertThat(result.get(0).getId(), notNullValue());
+        assertThat(result.get(0).getDescription(), equalTo(itemRequest.getDescription()));
+        assertThat(result.get(0).getCreated(), notNullValue());
+    }
+
+    @Test
+    void findAllRequest() {
+        User user1 = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User user2 = userService.createUser(makeUser("jo", "@email.com"));
+        ItemRequest itemRequest = new ItemRequest();
+        itemRequest.setDescription("описание");
+        ItemRequestDto itemRequestSave = itemRequestService.createRequest(itemRequest, user1.getId());
+        List<ItemRequestDto> result = itemRequestService.findAllRequest(0, 20, user2.getId());
+        assertThat(result.get(0).getId(), notNullValue());
+        assertThat(result.get(0).getDescription(), equalTo(itemRequest.getDescription()));
+        assertThat(result.get(0).getCreated(), notNullValue());
+    }
 
     private User makeUser(String name, String email) {
         User user = new User();
@@ -63,4 +89,5 @@ public class ItemRequestServiceImplTest {
         user.setEmail(email);
         return user;
     }
+
 }

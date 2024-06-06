@@ -37,6 +37,13 @@ public class UserServiceImplTest {
     }
 
     @Test
+    void createEqualEmail() {
+        User user1 = makeUser("Пётр", "some@email.com");
+        User user2 = makeUser("Пётр", "some@email.com");
+        service.createUser(user1);
+    }
+
+    @Test
     void findAllUsers() {
         List<User> sourceUsers = List.of(
                 makeUser("Пётр", "some@email.com"),

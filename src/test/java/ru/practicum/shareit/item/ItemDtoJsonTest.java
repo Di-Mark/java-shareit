@@ -18,8 +18,11 @@ public class ItemDtoJsonTest {
     void testItemDto() throws Exception {
         ItemDto itemDto = new ItemDto(1L, "name", "desc", true, 1L);
         JsonContent<ItemDto> result = json.write(itemDto);
+        assertThat(result).extractingJsonPathNumberValue("$.id").isEqualTo(1);
         assertThat(result).extractingJsonPathStringValue("$.name").isEqualTo("name");
         assertThat(result).extractingJsonPathStringValue("$.description").isEqualTo("desc");
+        assertThat(result).extractingJsonPathBooleanValue("available").isEqualTo(true);
+        assertThat(result).extractingJsonPathNumberValue("$.requestId").isEqualTo(1);
     }
 
 }
