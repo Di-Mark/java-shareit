@@ -43,8 +43,8 @@ public class BookingServiceImplTest {
         ItemDto itemDto = makeItemDto("name", "desc", true);
         ItemDto item = itemService.createItem(itemDto, ow.getId());
         BookingDto bookingDto = makeBookingDto(
-                LocalDateTime.of(2024, 6, 6, 12, 12, 12),
-                LocalDateTime.of(2024, 6, 7,
+                LocalDateTime.of(2024, 7, 6, 12, 12, 12),
+                LocalDateTime.of(2024, 7, 7,
                         12, 12, 12), book.getId(), item.getId());
         bookingService.createBooking(bookingDto, book.getId());
         TypedQuery<Booking> query = em.createQuery("Select b from Booking b where b.start = :start", Booking.class);
@@ -67,8 +67,8 @@ public class BookingServiceImplTest {
         ItemDto itemDto = makeItemDto("name", "desc", true);
         ItemDto item = itemService.createItem(itemDto, ow.getId());
         BookingDto bookingDto = makeBookingDto(
-                LocalDateTime.of(2024, 6, 6, 12, 12, 12),
-                LocalDateTime.of(2024, 6, 7,
+                LocalDateTime.of(2024, 7, 6, 12, 12, 12),
+                LocalDateTime.of(2024, 7, 7,
                         12, 12, 12), book.getId(), item.getId());
         Booking booking = bookingService.createBooking(bookingDto, book.getId());
         bookingService.changeStatus(booking.getId(), ow.getId(), true);
@@ -92,8 +92,8 @@ public class BookingServiceImplTest {
         ItemDto itemDto = makeItemDto("name", "desc", true);
         ItemDto item = itemService.createItem(itemDto, ow.getId());
         BookingDto bookingDto = makeBookingDto(
-                LocalDateTime.of(2024, 6, 6, 12, 12, 12),
-                LocalDateTime.of(2024, 6, 7,
+                LocalDateTime.of(2024, 7, 6, 12, 12, 12),
+                LocalDateTime.of(2024, 7, 7,
                         12, 12, 12), book.getId(), item.getId());
         Booking booking = bookingService.createBooking(bookingDto, book.getId());
         Booking result = bookingService.getBooking(booking.getId(), book.getId());
@@ -204,8 +204,8 @@ public class BookingServiceImplTest {
         ItemDto itemDto = makeItemDto("name", "desc", true);
         ItemDto item = itemService.createItem(itemDto, ow.getId());
         Booking booking = makeBooking(
-                LocalDateTime.of(2024, 6, 6, 12, 12, 12),
-                LocalDateTime.of(2024, 6, 7, 12, 12, 12),
+                LocalDateTime.of(2024, 7, 6, 12, 12, 12),
+                LocalDateTime.of(2024, 7, 7, 12, 12, 12),
                 new User(book.getId(), "booker", "booker@email.com"),
                 new Item(item.getId(), "name", "desc", true,
                         new User(ow.getId(), "Пётр", "some@email.com"), null),
@@ -384,8 +384,8 @@ public class BookingServiceImplTest {
         ItemDto itemDto = makeItemDto("name", "desc", true);
         ItemDto item = itemService.createItem(itemDto, ow.getId());
         Booking booking = makeBooking(
-                LocalDateTime.of(2024, 6, 6, 12, 12, 12),
-                LocalDateTime.of(2024, 6, 7, 12, 12, 12),
+                LocalDateTime.of(2024, 7, 6, 12, 12, 12),
+                LocalDateTime.of(2024, 7, 7, 12, 12, 12),
                 new User(book.getId(), "booker", "booker@email.com"),
                 new Item(item.getId(), "name", "desc", true,
                         new User(ow.getId(), "Пётр", "some@email.com"), null),
