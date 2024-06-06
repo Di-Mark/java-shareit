@@ -1,15 +1,19 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.StatusBooking;
 import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.item.comment.model.Comment;
+import ru.practicum.shareit.item.dao.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoBooking;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.User;
@@ -34,12 +38,15 @@ public class ItemServiceImplTest {
     private final EntityManager em;
     private final ItemService itemService;
     private final UserService userService;
+    private final ItemRepository itemRepository;
 
     @Test
     void createItem() {
         ItemDto itemDto = makeItemDto("name", "desc", true);
         User userSave = userService.createUser(makeUser("Пётр", "some@email.com"));
-        itemService.createItem(itemDto, userSave.getId());
+        ItemDto item = itemService.createItem(itemDto, userSave.getId());
+        List<Item> items = itemRepository.findByOwner(userSave, PageRequest.of(0, 20)).getContent();
+        Assertions.assertEquals(ItemMapper.toItemDto(items.get(0)), item);
         TypedQuery<Item> query = em.createQuery("Select i from Item i where i.name = :name", Item.class);
         Item result = query.setParameter("name", itemDto.getName())
                 .getSingleResult();
