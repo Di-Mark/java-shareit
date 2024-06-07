@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.StatusBooking;
+import ru.practicum.shareit.item.comment.dao.CommentRepository;
 import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.item.comment.model.Comment;
 import ru.practicum.shareit.item.dao.ItemRepository;
@@ -39,6 +40,7 @@ public class ItemServiceImplTest {
     private final ItemService itemService;
     private final UserService userService;
     private final ItemRepository itemRepository;
+    private final CommentRepository commentRepository;
 
     @Test
     void createItem() {
@@ -46,6 +48,8 @@ public class ItemServiceImplTest {
         User userSave = userService.createUser(makeUser("Пётр", "some@email.com"));
         ItemDto item = itemService.createItem(itemDto, userSave.getId());
         List<Item> items = itemRepository.findByOwner(userSave, PageRequest.of(0, 20)).getContent();
+        Assertions.assertEquals(ItemMapper.toItemDto(items.get(0)), item);
+        items = itemRepository.search("a", PageRequest.of(0, 20)).getContent();
         Assertions.assertEquals(ItemMapper.toItemDto(items.get(0)), item);
         TypedQuery<Item> query = em.createQuery("Select i from Item i where i.name = :name", Item.class);
         Item result = query.setParameter("name", itemDto.getName())
@@ -176,6 +180,8 @@ public class ItemServiceImplTest {
         assertThat(result.getId(), notNullValue());
         assertThat(result.getText(), equalTo(comment.getText()));
         assertThat(result.getItem().getId(), equalTo(item.getId()));
+        List<Comment> comments = commentRepository.findByItem(itemRepository.findById(item.getId()).get());
+        Assertions.assertNotNull(comments.get(0));
     }
 
     private ItemDto makeItemDto(String name, String description, Boolean available) {

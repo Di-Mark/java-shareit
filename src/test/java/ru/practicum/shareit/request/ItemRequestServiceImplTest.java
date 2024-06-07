@@ -1,9 +1,12 @@
 package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import ru.practicum.shareit.request.dao.ItemRequestRepository;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.service.ItemRequestService;
@@ -29,6 +32,7 @@ public class ItemRequestServiceImplTest {
     private final EntityManager em;
     private final UserService userService;
     private final ItemRequestService itemRequestService;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Test
     void createRequest() {
@@ -56,6 +60,10 @@ public class ItemRequestServiceImplTest {
         assertThat(result.getId(), notNullValue());
         assertThat(result.getDescription(), equalTo(itemRequest.getDescription()));
         assertThat(result.getCreated(), notNullValue());
+        List<ItemRequest> requests = itemRequestRepository.findAll(PageRequest.of(0, 20)).getContent();
+        Assertions.assertNotNull(requests);
+        requests = itemRequestRepository.findByRequestorOrderByCreatedDesc(user1);
+        Assertions.assertNotNull(requests);
     }
 
     @Test

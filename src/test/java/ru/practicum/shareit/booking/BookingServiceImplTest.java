@@ -1,13 +1,17 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import ru.practicum.shareit.booking.dao.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.StatusBooking;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.item.dao.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
@@ -34,7 +38,8 @@ public class BookingServiceImplTest {
     private final BookingService bookingService;
     private final ItemService itemService;
     private final UserService userService;
-
+    private final BookingRepository bookingRepository;
+    private final ItemRepository itemRepository;
 
     @Test
     void createBooking() {
@@ -58,6 +63,20 @@ public class BookingServiceImplTest {
                 equalTo(new Item(item.getId(), "name", "desc",
                         true, new User(ow.getId(), "Пётр", "some@email.com"), null)));
         assertThat(result.getStatus(), equalTo(StatusBooking.WAITING));
+        List<Booking> bookings = bookingRepository.findByItemAndBooker(itemRepository.findById(item.getId()).get(),
+                userService.getUser(book.getId()));
+        Assertions.assertNotNull(bookings);
+        bookings = bookingRepository.findByItemOrderByEndDesc(itemRepository.findById(item.getId()).get());
+        Assertions.assertNotNull(bookings);
+        bookings = bookingRepository.findByItemOrderByStartAsc(itemRepository.findById(item.getId()).get());
+        Assertions.assertNotNull(bookings);
+        bookings = bookingRepository.findByBooker(
+                userService.getUser(book.getId()), PageRequest.of(0, 20)).getContent();
+        Assertions.assertNotNull(bookings);
+        bookings = bookingRepository
+                .findByItemIn(List.of(itemRepository.findById(item.getId()).get()),
+                        PageRequest.of(0, 20)).getContent();
+        Assertions.assertNotNull(bookings);
     }
 
     @Test
@@ -145,7 +164,7 @@ public class BookingServiceImplTest {
         ItemDto item = itemService.createItem(itemDto, ow.getId());
         Booking booking = makeBooking(
                 LocalDateTime.of(2024, 5, 6, 12, 12, 12),
-                LocalDateTime.of(2024, 6, 7, 12, 12, 12),
+                LocalDateTime.of(2024, 6, 8, 12, 12, 12),
                 new User(book.getId(), "booker", "booker@email.com"),
                 new Item(item.getId(), "name", "desc", true,
                         new User(ow.getId(), "Пётр", "some@email.com"), null),
@@ -325,7 +344,7 @@ public class BookingServiceImplTest {
         ItemDto item = itemService.createItem(itemDto, ow.getId());
         Booking booking = makeBooking(
                 LocalDateTime.of(2024, 5, 6, 12, 12, 12),
-                LocalDateTime.of(2024, 6, 7, 12, 12, 12),
+                LocalDateTime.of(2024, 6, 8, 12, 12, 12),
                 new User(book.getId(), "booker", "booker@email.com"),
                 new Item(item.getId(), "name", "desc", true,
                         new User(ow.getId(), "Пётр", "some@email.com"), null),
