@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.user.dao.UserRepository;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.persistence.EntityManager;
@@ -25,6 +26,7 @@ import static org.hamcrest.Matchers.*;
 public class UserServiceImplTest {
     private final EntityManager em;
     private final UserService service;
+    private final UserRepository userRepository;
 
     @Test
     void createUserTest() {
@@ -36,6 +38,7 @@ public class UserServiceImplTest {
         assertThat(result.getId(), notNullValue());
         assertThat(result.getName(), equalTo(user.getName()));
         assertThat(result.getEmail(), equalTo(user.getEmail()));
+        Assertions.assertNotNull(userRepository.findAll());
     }
 
     @Test
