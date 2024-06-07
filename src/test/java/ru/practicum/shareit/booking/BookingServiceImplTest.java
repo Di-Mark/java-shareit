@@ -11,6 +11,8 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.StatusBooking;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dao.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
@@ -77,6 +79,81 @@ public class BookingServiceImplTest {
                 .findByItemIn(List.of(itemRepository.findById(item.getId()).get()),
                         PageRequest.of(0, 20)).getContent();
         Assertions.assertNotNull(bookings);
+    }
+
+    @Test
+    void createBookingWithFailBooker() {
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
+        ItemDto itemDto = makeItemDto("name", "desc", true);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
+        BookingDto bookingDto = makeBookingDto(
+                LocalDateTime.of(2024, 7, 6, 12, 12, 12),
+                LocalDateTime.of(2024, 7, 7,
+                        12, 12, 12), book.getId(), item.getId());
+        NotFoundException e = Assertions.assertThrows(NotFoundException.class,
+                () -> bookingService.createBooking(bookingDto, ow.getId()));
+        Assertions.assertEquals(e.getMessage(), "");
+    }
+
+    @Test
+    void createBookingWithFailUserId() {
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
+        ItemDto itemDto = makeItemDto("name", "desc", true);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
+        BookingDto bookingDto = makeBookingDto(
+                LocalDateTime.of(2024, 7, 6, 12, 12, 12),
+                LocalDateTime.of(2024, 7, 7,
+                        12, 12, 12), book.getId(), item.getId());
+        ValidationException e = Assertions.assertThrows(ValidationException.class,
+                () -> bookingService.createBooking(bookingDto, null));
+        Assertions.assertEquals(e.getMessage(), "юзер отсутствует");
+    }
+
+    @Test
+    void createBookingWithFailStatus() {
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
+        ItemDto itemDto = makeItemDto("name", "desc", false);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
+        BookingDto bookingDto = makeBookingDto(
+                LocalDateTime.of(2024, 7, 6, 12, 12, 12),
+                LocalDateTime.of(2024, 7, 7,
+                        12, 12, 12), book.getId(), item.getId());
+        ValidationException e = Assertions.assertThrows(ValidationException.class,
+                () -> bookingService.createBooking(bookingDto, book.getId()));
+        Assertions.assertEquals(e.getMessage(), "");
+    }
+
+    @Test
+    void createBookingWithFailStart() {
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
+        ItemDto itemDto = makeItemDto("name", "desc", true);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
+        BookingDto bookingDto = makeBookingDto(
+                null,
+                LocalDateTime.of(2024, 7, 7,
+                        12, 12, 12), book.getId(), item.getId());
+        ValidationException e = Assertions.assertThrows(ValidationException.class,
+                () -> bookingService.createBooking(bookingDto, book.getId()));
+        Assertions.assertEquals(e.getMessage(), "");
+    }
+
+    @Test
+    void createBookingWithFailDate() {
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
+        ItemDto itemDto = makeItemDto("name", "desc", true);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
+        BookingDto bookingDto = makeBookingDto(
+                LocalDateTime.of(2024, 6, 6, 12, 12, 12),
+                LocalDateTime.of(2024, 7, 7,
+                        12, 12, 12), book.getId(), item.getId());
+        ValidationException e = Assertions.assertThrows(ValidationException.class,
+                () -> bookingService.createBooking(bookingDto, book.getId()));
+        Assertions.assertEquals(e.getMessage(), "");
     }
 
     @Test
@@ -154,6 +231,90 @@ public class BookingServiceImplTest {
                     hasProperty("status", equalTo(sourceBooking.getStatus()))
             )));
         }
+    }
+
+    @Test
+    void getBookingForUserByStatusAllWithFailPage() {
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
+        ItemDto itemDto = makeItemDto("name", "desc", true);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
+        Booking booking = makeBooking(
+                LocalDateTime.of(2024, 6, 6, 12, 12, 12),
+                LocalDateTime.of(2024, 6, 7, 12, 12, 12),
+                new User(book.getId(), "booker", "booker@email.com"),
+                new Item(item.getId(), "name", "desc", true,
+                        new User(ow.getId(), "Пётр", "some@email.com"), null),
+                StatusBooking.WAITING);
+        List<Booking> sourceList = List.of(booking);
+        em.persist(booking);
+        em.flush();
+        ValidationException e = Assertions.assertThrows(ValidationException.class,
+                () -> bookingService.getBookingForUserByStatus(book.getId(), "ALL", -1, 20));
+        Assertions.assertEquals(e.getMessage(), "");
+    }
+
+    @Test
+    void getBookingForOwnerByStatusAllWithFailPage() {
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
+        ItemDto itemDto = makeItemDto("name", "desc", true);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
+        Booking booking = makeBooking(
+                LocalDateTime.of(2024, 6, 6, 12, 12, 12),
+                LocalDateTime.of(2024, 6, 7, 12, 12, 12),
+                new User(book.getId(), "booker", "booker@email.com"),
+                new Item(item.getId(), "name", "desc", true,
+                        new User(ow.getId(), "Пётр", "some@email.com"), null),
+                StatusBooking.WAITING);
+        List<Booking> sourceList = List.of(booking);
+        em.persist(booking);
+        em.flush();
+        ValidationException e = Assertions.assertThrows(ValidationException.class,
+                () -> bookingService.getBookingForOwnerByStatus(book.getId(), "ALL", -1, 20));
+        Assertions.assertEquals(e.getMessage(), "");
+    }
+
+    @Test
+    void getBookingForOwnerByStatusAllWithFailStatus() {
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
+        ItemDto itemDto = makeItemDto("name", "desc", true);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
+        Booking booking = makeBooking(
+                LocalDateTime.of(2024, 6, 6, 12, 12, 12),
+                LocalDateTime.of(2024, 6, 7, 12, 12, 12),
+                new User(book.getId(), "booker", "booker@email.com"),
+                new Item(item.getId(), "name", "desc", true,
+                        new User(ow.getId(), "Пётр", "some@email.com"), null),
+                StatusBooking.WAITING);
+        List<Booking> sourceList = List.of(booking);
+        em.persist(booking);
+        em.flush();
+        ValidationException e = Assertions.assertThrows(ValidationException.class,
+                () -> bookingService.getBookingForOwnerByStatus(book.getId(), "AAA", 0, 20));
+        Assertions.assertEquals(e.getMessage(), "Unknown state: AAA");
+    }
+
+    @Test
+    void getBookingForUserByStatusAllWithFailStatus() {
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
+        ItemDto itemDto = makeItemDto("name", "desc", true);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
+        Booking booking = makeBooking(
+                LocalDateTime.of(2024, 6, 6, 12, 12, 12),
+                LocalDateTime.of(2024, 6, 7, 12, 12, 12),
+                new User(book.getId(), "booker", "booker@email.com"),
+                new Item(item.getId(), "name", "desc", true,
+                        new User(ow.getId(), "Пётр", "some@email.com"), null),
+                StatusBooking.WAITING);
+        List<Booking> sourceList = List.of(booking);
+        em.persist(booking);
+        em.flush();
+        ValidationException e = Assertions.assertThrows(ValidationException.class,
+                () -> bookingService.getBookingForUserByStatus(book.getId(), "AAA", 0, 20));
+        Assertions.assertEquals(e.getMessage(), "Unknown state: AAA");
     }
 
     @Test

@@ -187,10 +187,29 @@ public class ItemServiceImplTest {
 
     @Test
     void getItem() {
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
         ItemDto itemDto = makeItemDto("name", "desc", true);
-        User user = userService.createUser(makeUser("Пётр", "some@email.com"));
-        ItemDto item = itemService.createItem(itemDto, user.getId());
-        ItemDtoBooking result = itemService.getItem(item.getId(), user.getId());
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
+        Booking booking = makeBooking(
+                LocalDateTime.of(2024, 3, 6, 12, 12, 12),
+                LocalDateTime.of(2024, 4, 7, 12, 12, 12),
+                new User(book.getId(), "booker", "booker@email.com"),
+                new Item(item.getId(), "name", "desc", true,
+                        new User(ow.getId(), "Пётр", "some@email.com"), null),
+                StatusBooking.WAITING);
+        em.persist(booking);
+        em.flush();
+        booking = makeBooking(
+                LocalDateTime.of(2024, 10, 6, 12, 12, 12),
+                LocalDateTime.of(2024, 10, 7, 12, 12, 12),
+                new User(book.getId(), "booker", "booker@email.com"),
+                new Item(item.getId(), "name", "desc", true,
+                        new User(ow.getId(), "Пётр", "some@email.com"), null),
+                StatusBooking.WAITING);
+        em.persist(booking);
+        em.flush();
+        ItemDtoBooking result = itemService.getItem(item.getId(), ow.getId());
         assertThat(result.getId(), notNullValue());
         assertThat(result.getAvailable(), equalTo(itemDto.getAvailable()));
         assertThat(result.getRequest(), equalTo(itemDto.getRequestId()));
@@ -218,6 +237,22 @@ public class ItemServiceImplTest {
                     hasProperty("available", equalTo(sourceItem.getAvailable()))
             )));
         }
+    }
+
+    @Test
+    void getItemsListForUserWithFailPage() {
+        User user = userService.createUser(makeUser("Пётр", "some@email.com"));
+        List<ItemDto> sourceItems = List.of(
+                makeItemDto("name", "desc", true),
+                makeItemDto("name2", "desc2", true),
+                makeItemDto("name3", "desc3", true)
+        );
+        for (ItemDto itemDto : sourceItems) {
+            itemService.createItem(itemDto, user.getId());
+        }
+        ValidationException e = Assertions.assertThrows(ValidationException.class,
+                () -> itemService.getItemsListForUser(user.getId(), -1, 20));
+        Assertions.assertEquals(e.getMessage(), "");
     }
 
     @Test
