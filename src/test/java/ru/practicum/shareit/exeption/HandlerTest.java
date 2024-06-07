@@ -28,7 +28,7 @@ public class HandlerTest {
     public void whenNotFoundExceptionThrown() throws Exception {
         given(userService.getUser(anyLong())).willThrow(new NotFoundException("Not found"));
 
-        mockMvc.perform(get("/users/1") // Замените на ваш конечный путь
+        mockMvc.perform(get("/users/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
