@@ -16,5 +16,6 @@ public class RequestTest {
         ItemRequest itemRequest2 = new ItemRequest(1L, "desc", null,
                 LocalDateTime.of(2010, 12, 12, 12, 21, 12));
         assertEquals(itemRequest1.equals(itemRequest2), true);
+        itemRequest1.hashCode();
     }
 }

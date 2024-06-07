@@ -10,5 +10,6 @@ public class UserTest {
         User user1 = new User(1L, "name", "desc");
         User user2 = new User(1L, "name", "desc");
         assertEquals(user1.equals(user2), true);
+        user1.hashCode();
     }
 }

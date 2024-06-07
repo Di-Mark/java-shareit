@@ -21,5 +21,6 @@ public class BookingTest {
                 LocalDateTime.of(2010, 12, 12, 12, 21, 12),
                 null, null, StatusBooking.WAITING);
         assertEquals(booking1.equals(booking2), true);
+        booking2.hashCode();
     }
 }

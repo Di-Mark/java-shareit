@@ -12,5 +12,6 @@ public class ItemTest {
         Item item1 = new Item(1L, "name", "desc", true, null, null);
         Item item2 = new Item(1L, "name", "desc", true, null, null);
         assertEquals(item1.equals(item2), true);
+        item1.hashCode();
     }
 }

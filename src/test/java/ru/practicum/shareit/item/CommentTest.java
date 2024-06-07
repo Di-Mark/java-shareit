@@ -12,5 +12,6 @@ public class CommentTest {
         Comment comment1 = new Comment(1L, "text", null, null, null);
         Comment comment2 = new Comment(1L, "text", null, null, null);
         assertEquals(comment1.equals(comment2), true);
+        comment1.hashCode();
     }
 }
