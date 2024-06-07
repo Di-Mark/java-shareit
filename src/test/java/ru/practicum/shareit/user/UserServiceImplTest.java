@@ -55,6 +55,13 @@ public class UserServiceImplTest {
     }
 
     @Test
+    void createWithFailEmail() {
+        User user = makeUser("n", "someemail.com");
+        ValidationException e = Assertions.assertThrows(ValidationException.class, () -> service.createUser(user));
+        Assertions.assertEquals(e.getMessage(), "неправильный формат почты пользователя");
+    }
+
+    @Test
     void createEqualEmail() {
         User user1 = makeUser("Пётр", "some@email.com");
         User user2 = makeUser("Пётр", "some@email.com");
@@ -96,6 +103,27 @@ public class UserServiceImplTest {
         assertThat(result.getName(), equalTo(newUser.getName()));
         assertThat(result.getEmail(), equalTo(newUser.getEmail()));
     }
+
+    @Test
+    void patchUserWithFailName() {
+        User user = makeUser("Пётр", "some@email.com");
+        User saveUser = service.createUser(user);
+        User newUser = makeUser("", "new@email.com");
+        ValidationException e = Assertions.assertThrows(ValidationException.class,
+                () -> service.patchUser(newUser, user.getId()));
+        Assertions.assertEquals(e.getMessage(), "Имя пользователя не может быть пустым");
+    }
+
+    @Test
+    void patchUserWithFailEmail() {
+        User user = makeUser("Пётр", "some@email.com");
+        User saveUser = service.createUser(user);
+        User newUser = makeUser("n", "newemail.com");
+        ValidationException e = Assertions.assertThrows(ValidationException.class,
+                () -> service.patchUser(newUser, user.getId()));
+        Assertions.assertEquals(e.getMessage(), "неправильный формат почты пользователя");
+    }
+
 
     @Test
     void getUser() {

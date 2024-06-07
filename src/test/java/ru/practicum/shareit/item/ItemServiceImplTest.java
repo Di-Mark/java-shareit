@@ -8,6 +8,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.StatusBooking;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.comment.dao.CommentRepository;
 import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.item.comment.model.Comment;
@@ -64,6 +66,42 @@ public class ItemServiceImplTest {
 
 
     @Test
+    void createItemWithFailId() {
+        ItemDto itemDto = makeItemDto("name", "desc", true);
+        User userSave = userService.createUser(makeUser("Пётр", "some@email.com"));
+        ValidationException e = Assertions.assertThrows(ValidationException.class,
+                () -> itemService.createItem(itemDto, null));
+        Assertions.assertEquals(e.getMessage(), "нет id владельца вещи");
+    }
+
+    @Test
+    void createItemWithFailName() {
+        ItemDto itemDto = makeItemDto("", "desc", true);
+        User userSave = userService.createUser(makeUser("Пётр", "some@email.com"));
+        ValidationException e = Assertions.assertThrows(ValidationException.class,
+                () -> itemService.createItem(itemDto, userSave.getId()));
+        Assertions.assertEquals(e.getMessage(), "имя вещи не может быть пустым или отсутствовать");
+    }
+
+    @Test
+    void createItemWithFailDesc() {
+        ItemDto itemDto = makeItemDto("n", "", true);
+        User userSave = userService.createUser(makeUser("Пётр", "some@email.com"));
+        ValidationException e = Assertions.assertThrows(ValidationException.class,
+                () -> itemService.createItem(itemDto, userSave.getId()));
+        Assertions.assertEquals(e.getMessage(), "описание вещи не может быть пустым или отсутствовать");
+    }
+
+    @Test
+    void createItemWithFailStatus() {
+        ItemDto itemDto = makeItemDto("n", "@e", null);
+        User userSave = userService.createUser(makeUser("Пётр", "some@email.com"));
+        ValidationException e = Assertions.assertThrows(ValidationException.class,
+                () -> itemService.createItem(itemDto, userSave.getId()));
+        Assertions.assertEquals(e.getMessage(), "статус вещи не может быть пустым или отсутствовать");
+    }
+
+    @Test
     void getAllItems() {
         User user = userService.createUser(makeUser("Пётр", "some@email.com"));
         List<ItemDto> sourceItems = List.of(
@@ -103,6 +141,51 @@ public class ItemServiceImplTest {
     }
 
     @Test
+    void patchItemWithFailIdUser() {
+        ItemDto itemDto = makeItemDto("name", "desc", true);
+        User user = userService.createUser(makeUser("Пётр", "some@email.com"));
+        ItemDto item = itemService.createItem(itemDto, user.getId());
+        ItemDto newItem = makeItemDto("new", "new", true);
+        ValidationException e = Assertions.assertThrows(ValidationException.class,
+                () -> itemService.patchItem(newItem, item.getId(), null));
+        Assertions.assertEquals(e.getMessage(), "отсутствует id владельца вещи");
+    }
+
+    @Test
+    void patchItemWithFailName() {
+        ItemDto itemDto = makeItemDto("name", "desc", true);
+        User user = userService.createUser(makeUser("Пётр", "some@email.com"));
+        ItemDto item = itemService.createItem(itemDto, user.getId());
+        ItemDto newItem = makeItemDto("", "new", true);
+        ValidationException e = Assertions.assertThrows(ValidationException.class,
+                () -> itemService.patchItem(newItem, item.getId(), user.getId()));
+        Assertions.assertEquals(e.getMessage(), "имя вещи не может быть пустым или отсутствовать");
+    }
+
+    @Test
+    void patchItemWithFailDesc() {
+        ItemDto itemDto = makeItemDto("name", "desc", true);
+        User user = userService.createUser(makeUser("Пётр", "some@email.com"));
+        ItemDto item = itemService.createItem(itemDto, user.getId());
+        ItemDto newItem = makeItemDto("n", "", true);
+        ValidationException e = Assertions.assertThrows(ValidationException.class,
+                () -> itemService.patchItem(newItem, item.getId(), user.getId()));
+        Assertions.assertEquals(e.getMessage(), "описание вещи не может быть пустым или отсутствовать");
+    }
+
+    @Test
+    void patchItemWithFailOwner() {
+        ItemDto itemDto = makeItemDto("name", "desc", true);
+        User user = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User user2 = userService.createUser(makeUser("Пётр", "@email.com"));
+        ItemDto item = itemService.createItem(itemDto, user.getId());
+        ItemDto newItem = makeItemDto("n", "@a", true);
+        NotFoundException e = Assertions.assertThrows(NotFoundException.class,
+                () -> itemService.patchItem(newItem, item.getId(), user2.getId()));
+        Assertions.assertEquals(e.getMessage(), "только владелец вещи может вносить изменения");
+    }
+
+    @Test
     void getItem() {
         ItemDto itemDto = makeItemDto("name", "desc", true);
         User user = userService.createUser(makeUser("Пётр", "some@email.com"));
@@ -112,6 +195,7 @@ public class ItemServiceImplTest {
         assertThat(result.getAvailable(), equalTo(itemDto.getAvailable()));
         assertThat(result.getRequest(), equalTo(itemDto.getRequestId()));
     }
+
 
     @Test
     void getItemsListForUser() {
@@ -160,6 +244,38 @@ public class ItemServiceImplTest {
     }
 
     @Test
+    void searchItemsForTextWithEmptyText() {
+        User user = userService.createUser(makeUser("Пётр", "some@email.com"));
+        List<ItemDto> sourceItems = List.of(
+                makeItemDto("name", "desc", true),
+                makeItemDto("name2", "desc2", true),
+                makeItemDto("name3", "desc3", true)
+        );
+        for (ItemDto itemDto : sourceItems) {
+            itemService.createItem(itemDto, user.getId());
+        }
+        List<ItemDto> targetItems = itemService.searchItemsForText("", 0, 20);
+        assertThat(targetItems, hasSize(0));
+    }
+
+    @Test
+    void searchItemsForTextWithFailPage() {
+        User user = userService.createUser(makeUser("Пётр", "some@email.com"));
+        List<ItemDto> sourceItems = List.of(
+                makeItemDto("name", "desc", true),
+                makeItemDto("name2", "desc2", true),
+                makeItemDto("name3", "desc3", true)
+        );
+        for (ItemDto itemDto : sourceItems) {
+            itemService.createItem(itemDto, user.getId());
+        }
+        ValidationException e = Assertions.assertThrows(ValidationException.class,
+                () -> itemService.searchItemsForText("n", -1, 20));
+        Assertions.assertEquals(e.getMessage(), "");
+    }
+
+
+    @Test
     void addComment() {
         User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
         User book = userService.createUser(makeUser("booker", "booker@email.com"));
@@ -183,6 +299,42 @@ public class ItemServiceImplTest {
         List<Comment> comments = commentRepository.findByItem(itemRepository.findById(item.getId()).get());
         Assertions.assertNotNull(comments.get(0));
     }
+
+    @Test
+    void addCommentWithFailText() {
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
+        ItemDto itemDto = makeItemDto("name", "desc", true);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
+        Booking booking = makeBooking(
+                LocalDateTime.of(2024, 3, 6, 12, 12, 12),
+                LocalDateTime.of(2024, 4, 7, 12, 12, 12),
+                new User(book.getId(), "booker", "booker@email.com"),
+                new Item(item.getId(), "name", "desc", true,
+                        new User(ow.getId(), "Пётр", "some@email.com"), null),
+                StatusBooking.WAITING);
+        em.persist(booking);
+        em.flush();
+        Comment comment = new Comment();
+        comment.setText("");
+        ValidationException e = Assertions.assertThrows(ValidationException.class,
+                () -> itemService.addComment(comment, item.getId(), book.getId()));
+        Assertions.assertEquals(e.getMessage(), "");
+    }
+
+    @Test
+    void addCommentWithFailBooing() {
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
+        ItemDto itemDto = makeItemDto("name", "desc", true);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
+        Comment comment = new Comment();
+        comment.setText("t");
+        ValidationException e = Assertions.assertThrows(ValidationException.class,
+                () -> itemService.addComment(comment, item.getId(), book.getId()));
+        Assertions.assertEquals(e.getMessage(), "");
+    }
+
 
     private ItemDto makeItemDto(String name, String description, Boolean available) {
         ItemDto itemDto = new ItemDto();
