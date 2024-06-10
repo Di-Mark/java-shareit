@@ -46,7 +46,7 @@ public class ItemServiceImplTest {
 
     @Test
     void createItem() {
-        ItemDto itemDto = makeItemDto("name", "desc", true);
+        ItemDto itemDto = makeItemDto("aka", "это", true);
         User userSave = userService.createUser(makeUser("Пётр", "some@email.com"));
         ItemDto item = itemService.createItem(itemDto, userSave.getId());
         List<Item> items = itemRepository.findByOwner(userSave, PageRequest.of(0, 20)).getContent();
@@ -67,7 +67,7 @@ public class ItemServiceImplTest {
 
     @Test
     void createItemWithFailId() {
-        ItemDto itemDto = makeItemDto("name", "desc", true);
+        ItemDto itemDto = makeItemDto("yttt", "cat", true);
         User userSave = userService.createUser(makeUser("Пётр", "some@email.com"));
         ValidationException e = Assertions.assertThrows(ValidationException.class,
                 () -> itemService.createItem(itemDto, null));
@@ -76,7 +76,7 @@ public class ItemServiceImplTest {
 
     @Test
     void createItemWithFailName() {
-        ItemDto itemDto = makeItemDto("", "desc", true);
+        ItemDto itemDto = makeItemDto("", "deeeeesk", true);
         User userSave = userService.createUser(makeUser("Пётр", "some@email.com"));
         ValidationException e = Assertions.assertThrows(ValidationException.class,
                 () -> itemService.createItem(itemDto, userSave.getId()));
@@ -85,7 +85,7 @@ public class ItemServiceImplTest {
 
     @Test
     void createItemWithFailDesc() {
-        ItemDto itemDto = makeItemDto("n", "", true);
+        ItemDto itemDto = makeItemDto("ooeeee", "", true);
         User userSave = userService.createUser(makeUser("Пётр", "some@email.com"));
         ValidationException e = Assertions.assertThrows(ValidationException.class,
                 () -> itemService.createItem(itemDto, userSave.getId()));
@@ -94,7 +94,7 @@ public class ItemServiceImplTest {
 
     @Test
     void createItemWithFailStatus() {
-        ItemDto itemDto = makeItemDto("n", "@e", null);
+        ItemDto itemDto = makeItemDto("aggaaa", "@e", null);
         User userSave = userService.createUser(makeUser("Пётр", "some@email.com"));
         ValidationException e = Assertions.assertThrows(ValidationException.class,
                 () -> itemService.createItem(itemDto, userSave.getId()));
@@ -105,9 +105,9 @@ public class ItemServiceImplTest {
     void getAllItems() {
         User user = userService.createUser(makeUser("Пётр", "some@email.com"));
         List<ItemDto> sourceItems = List.of(
-                makeItemDto("name", "desc", true),
-                makeItemDto("name2", "desc2", true),
-                makeItemDto("name3", "desc3", true)
+                makeItemDto("cao", "norm", true),
+                makeItemDto("kak", "vvv", true),
+                makeItemDto("lll", "ohoh", true)
         );
         for (ItemDto itemDto : sourceItems) {
             itemService.createItem(itemDto, user.getId());
@@ -126,7 +126,7 @@ public class ItemServiceImplTest {
 
     @Test
     void patchItem() {
-        ItemDto itemDto = makeItemDto("name", "desc", true);
+        ItemDto itemDto = makeItemDto("nan", "dad", true);
         User user = userService.createUser(makeUser("Пётр", "some@email.com"));
         ItemDto item = itemService.createItem(itemDto, user.getId());
         ItemDto newItem = makeItemDto("new", "new", true);
@@ -142,7 +142,7 @@ public class ItemServiceImplTest {
 
     @Test
     void patchItemWithFailIdUser() {
-        ItemDto itemDto = makeItemDto("name", "desc", true);
+        ItemDto itemDto = makeItemDto("tyyt", "ne", true);
         User user = userService.createUser(makeUser("Пётр", "some@email.com"));
         ItemDto item = itemService.createItem(itemDto, user.getId());
         ItemDto newItem = makeItemDto("new", "new", true);
@@ -153,7 +153,7 @@ public class ItemServiceImplTest {
 
     @Test
     void patchItemWithFailName() {
-        ItemDto itemDto = makeItemDto("name", "desc", true);
+        ItemDto itemDto = makeItemDto("owww", "owwow", true);
         User user = userService.createUser(makeUser("Пётр", "some@email.com"));
         ItemDto item = itemService.createItem(itemDto, user.getId());
         ItemDto newItem = makeItemDto("", "new", true);
@@ -164,7 +164,7 @@ public class ItemServiceImplTest {
 
     @Test
     void patchItemWithFailDesc() {
-        ItemDto itemDto = makeItemDto("name", "desc", true);
+        ItemDto itemDto = makeItemDto("not", "et", true);
         User user = userService.createUser(makeUser("Пётр", "some@email.com"));
         ItemDto item = itemService.createItem(itemDto, user.getId());
         ItemDto newItem = makeItemDto("n", "", true);
@@ -175,7 +175,7 @@ public class ItemServiceImplTest {
 
     @Test
     void patchItemWithFailOwner() {
-        ItemDto itemDto = makeItemDto("name", "desc", true);
+        ItemDto itemDto = makeItemDto("meme", "mme", true);
         User user = userService.createUser(makeUser("Пётр", "some@email.com"));
         User user2 = userService.createUser(makeUser("Пётр", "@email.com"));
         ItemDto item = itemService.createItem(itemDto, user.getId());
@@ -243,9 +243,9 @@ public class ItemServiceImplTest {
     void getItemsListForUserWithFailPage() {
         User user = userService.createUser(makeUser("Пётр", "some@email.com"));
         List<ItemDto> sourceItems = List.of(
-                makeItemDto("name", "desc", true),
-                makeItemDto("name2", "desc2", true),
-                makeItemDto("name3", "desc3", true)
+                makeItemDto("ннн", "ттт", true),
+                makeItemDto("ккк", "ооо", true),
+                makeItemDto("иии", "ггг", true)
         );
         for (ItemDto itemDto : sourceItems) {
             itemService.createItem(itemDto, user.getId());
@@ -259,14 +259,14 @@ public class ItemServiceImplTest {
     void searchItemsForText() {
         User user = userService.createUser(makeUser("Пётр", "some@email.com"));
         List<ItemDto> sourceItems = List.of(
-                makeItemDto("name", "desc", true),
-                makeItemDto("name2", "desc2", true),
-                makeItemDto("name3", "desc3", true)
+                makeItemDto("каак", "кеек", true),
+                makeItemDto("куук", "иик", true),
+                makeItemDto("ооок", "щщк", true)
         );
         for (ItemDto itemDto : sourceItems) {
             itemService.createItem(itemDto, user.getId());
         }
-        List<ItemDto> targetItems = itemService.searchItemsForText("nAme", 0, 20);
+        List<ItemDto> targetItems = itemService.searchItemsForText("к", 0, 20);
         assertThat(targetItems, hasSize(sourceItems.size()));
         for (ItemDto sourceItem : sourceItems) {
             assertThat(targetItems, hasItem(allOf(
@@ -282,9 +282,9 @@ public class ItemServiceImplTest {
     void searchItemsForTextWithEmptyText() {
         User user = userService.createUser(makeUser("Пётр", "some@email.com"));
         List<ItemDto> sourceItems = List.of(
-                makeItemDto("name", "desc", true),
-                makeItemDto("name2", "desc2", true),
-                makeItemDto("name3", "desc3", true)
+                makeItemDto("й", "ц", true),
+                makeItemDto("ф", "ы", true),
+                makeItemDto("я", "ч", true)
         );
         for (ItemDto itemDto : sourceItems) {
             itemService.createItem(itemDto, user.getId());
@@ -297,9 +297,9 @@ public class ItemServiceImplTest {
     void searchItemsForTextWithFailPage() {
         User user = userService.createUser(makeUser("Пётр", "some@email.com"));
         List<ItemDto> sourceItems = List.of(
-                makeItemDto("name", "desc", true),
-                makeItemDto("name2", "desc2", true),
-                makeItemDto("name3", "desc3", true)
+                makeItemDto("й", "ц", true),
+                makeItemDto("ф", "ы", true),
+                makeItemDto("я", "ч", true)
         );
         for (ItemDto itemDto : sourceItems) {
             itemService.createItem(itemDto, user.getId());
@@ -312,41 +312,46 @@ public class ItemServiceImplTest {
 
     @Test
     void addComment() {
-        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
-        User book = userService.createUser(makeUser("booker", "booker@email.com"));
-        ItemDto itemDto = makeItemDto("name", "desc", true);
+        User ow = userService.createUser(makeUser("макс", "kak@email.com"));
+        User book = userService.createUser(makeUser("вова", "vova@email.com"));
+        ItemDto itemDto = makeItemDto("ммм", "ццц", true);
         ItemDto item = itemService.createItem(itemDto, ow.getId());
         Booking booking = makeBooking(
-                LocalDateTime.of(2024, 3, 6, 12, 12, 12),
-                LocalDateTime.of(2024, 4, 7, 12, 12, 12),
-                new User(book.getId(), "booker", "booker@email.com"),
-                new Item(item.getId(), "name", "desc", true,
-                        new User(ow.getId(), "Пётр", "some@email.com"), null),
+                LocalDateTime.of(2024, 3, 6, 5, 5, 5),
+                LocalDateTime.of(2024, 4, 7, 6, 6, 6),
+                new User(book.getId(), "вова", "vova@email.com"),
+                new Item(item.getId(), "ммм", "ццц", true,
+                        new User(ow.getId(), "макс", "kak@email.com"), null),
                 StatusBooking.WAITING);
         em.persist(booking);
         em.flush();
-        Comment comment = new Comment();
-        comment.setText("text");
-        CommentDto result = itemService.addComment(comment, item.getId(), book.getId());
+        Comment comment1 = new Comment();
+        comment1.setText("текст");
+        CommentDto result = itemService.addComment(comment1, item.getId(), book.getId());
         assertThat(result.getId(), notNullValue());
-        assertThat(result.getText(), equalTo(comment.getText()));
+        assertThat(result.getText(), equalTo(comment1.getText()));
         assertThat(result.getItem().getId(), equalTo(item.getId()));
-        List<Comment> comments = commentRepository.findByItem(itemRepository.findById(item.getId()).get());
-        Assertions.assertNotNull(comments.get(0));
+        Comment comment = commentRepository.findById(result.getId()).get();
+        Assertions.assertNotNull(comment);
+        Assertions.assertEquals(comment.getText(), "текст");
+        Assertions.assertEquals(comment.getItem(), new Item(item.getId(), "ммм", "ццц", true,
+                new User(ow.getId(), "макс", "kak@email.com"), null));
+        Assertions.assertEquals(comment.getAuthor(), new User(book.getId(), "вова", "vova@email.com"));
+        Assertions.assertNotNull(comment.getCreated());
     }
 
     @Test
     void addCommentWithFailText() {
-        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
-        User book = userService.createUser(makeUser("booker", "booker@email.com"));
-        ItemDto itemDto = makeItemDto("name", "desc", true);
+        User ow = userService.createUser(makeUser("карл", "карл@email.com"));
+        User book = userService.createUser(makeUser("петя", "петя@email.com"));
+        ItemDto itemDto = makeItemDto("ааа", "ууу", true);
         ItemDto item = itemService.createItem(itemDto, ow.getId());
         Booking booking = makeBooking(
-                LocalDateTime.of(2024, 3, 6, 12, 12, 12),
-                LocalDateTime.of(2024, 4, 7, 12, 12, 12),
-                new User(book.getId(), "booker", "booker@email.com"),
-                new Item(item.getId(), "name", "desc", true,
-                        new User(ow.getId(), "Пётр", "some@email.com"), null),
+                LocalDateTime.of(2022, 2, 6, 1, 1, 1),
+                LocalDateTime.of(2023, 4, 7, 10, 10, 10),
+                new User(book.getId(), "петя", "петя@email.com"),
+                new Item(item.getId(), "ааа", "ууу", true,
+                        new User(ow.getId(), "карл", "карл@email.com"), null),
                 StatusBooking.WAITING);
         em.persist(booking);
         em.flush();
@@ -359,9 +364,9 @@ public class ItemServiceImplTest {
 
     @Test
     void addCommentWithFailBooing() {
-        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
-        User book = userService.createUser(makeUser("booker", "booker@email.com"));
-        ItemDto itemDto = makeItemDto("name", "desc", true);
+        User ow = userService.createUser(makeUser("молод", "молод@email.com"));
+        User book = userService.createUser(makeUser("стар", "стар@email.com"));
+        ItemDto itemDto = makeItemDto("нет", "да", true);
         ItemDto item = itemService.createItem(itemDto, ow.getId());
         Comment comment = new Comment();
         comment.setText("t");

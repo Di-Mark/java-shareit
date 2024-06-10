@@ -182,6 +182,64 @@ public class BookingServiceImplTest {
     }
 
     @Test
+    void changeStatusOnFalse() {
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
+        ItemDto itemDto = makeItemDto("name", "desc", true);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
+        BookingDto bookingDto = makeBookingDto(
+                LocalDateTime.of(2024, 7, 6, 12, 12, 12),
+                LocalDateTime.of(2024, 7, 7,
+                        12, 12, 12), book.getId(), item.getId());
+        Booking booking = bookingService.createBooking(bookingDto, book.getId());
+        bookingService.changeStatus(booking.getId(), ow.getId(), false);
+        TypedQuery<Booking> query = em.createQuery("Select b from Booking b where b.start = :start", Booking.class);
+        Booking result = query.setParameter("start", bookingDto.getStart())
+                .getSingleResult();
+        assertThat(result.getId(), notNullValue());
+        assertThat(result.getStart(), equalTo(bookingDto.getStart()));
+        assertThat(result.getEnd(), equalTo(bookingDto.getEnd()));
+        assertThat(result.getBooker(), equalTo(new User(book.getId(), "booker", "booker@email.com")));
+        assertThat(result.getItem(),
+                equalTo(new Item(item.getId(), "name", "desc",
+                        true, new User(ow.getId(), "Пётр", "some@email.com"), null)));
+        assertThat(result.getStatus(), equalTo(StatusBooking.REJECTED));
+    }
+
+    @Test
+    void changeStatusWithFailStatus() {
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
+        ItemDto itemDto = makeItemDto("name", "desc", true);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
+        BookingDto bookingDto = makeBookingDto(
+                LocalDateTime.of(2024, 7, 6, 12, 12, 12),
+                LocalDateTime.of(2024, 7, 7,
+                        12, 12, 12), book.getId(), item.getId());
+        Booking booking = bookingService.createBooking(bookingDto, book.getId());
+        ValidationException e = Assertions.assertThrows(ValidationException.class,
+                () -> bookingService.changeStatus(booking.getId(), ow.getId(), null));
+        Assertions.assertEquals(e.getMessage(), "");
+    }
+
+    @Test
+    void changeStatusWithFailAp() {
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
+        ItemDto itemDto = makeItemDto("name", "desc", true);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
+        BookingDto bookingDto = makeBookingDto(
+                LocalDateTime.of(2024, 7, 6, 12, 12, 12),
+                LocalDateTime.of(2024, 7, 7,
+                        12, 12, 12), book.getId(), item.getId());
+        Booking booking = bookingService.createBooking(bookingDto, book.getId());
+        bookingService.changeStatus(booking.getId(), ow.getId(), true);
+        ValidationException e = Assertions.assertThrows(ValidationException.class,
+                () -> bookingService.changeStatus(booking.getId(), ow.getId(), true));
+        Assertions.assertEquals(e.getMessage(), "");
+    }
+
+    @Test
     void getBooking() {
         User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
         User book = userService.createUser(makeUser("booker", "booker@email.com"));
@@ -231,6 +289,43 @@ public class BookingServiceImplTest {
                     hasProperty("status", equalTo(sourceBooking.getStatus()))
             )));
         }
+    }
+
+    @Test
+    void getBookingForUserByStatusAllWithPage() {
+        User ow = userService.createUser(makeUser("Пётр", "some@email.com"));
+        User book = userService.createUser(makeUser("booker", "booker@email.com"));
+        ItemDto itemDto = makeItemDto("name", "desc", true);
+        ItemDto item = itemService.createItem(itemDto, ow.getId());
+        Booking booking = makeBooking(
+                LocalDateTime.of(2024, 6, 6, 12, 12, 12),
+                LocalDateTime.of(2024, 6, 7, 12, 12, 12),
+                new User(book.getId(), "booker", "booker@email.com"),
+                new Item(item.getId(), "name", "desc", true,
+                        new User(ow.getId(), "Пётр", "some@email.com"), null),
+                StatusBooking.WAITING);
+        List<Booking> sourceList = List.of(booking);
+        em.persist(booking);
+        em.flush();
+        Booking booking2 = makeBooking(
+                LocalDateTime.of(2022, 5, 3, 5, 5, 5),
+                LocalDateTime.of(2023, 7, 8, 12, 12, 12),
+                new User(book.getId(), "booker", "booker@email.com"),
+                new Item(item.getId(), "name", "desc", true,
+                        new User(ow.getId(), "Пётр", "some@email.com"), null),
+                StatusBooking.WAITING);
+        sourceList = List.of(booking2);
+        em.persist(booking2);
+        em.flush();
+        List<Booking> targetList = bookingService.getBookingForUserByStatus(book.getId(), "ALL", 2, 3);
+        Assertions.assertEquals(sourceList.size(),targetList.size());
+        Assertions.assertNotNull(targetList.get(0).getId());
+        Assertions.assertEquals(sourceList.get(0).getStatus(),targetList.get(0).getStatus());
+        Assertions.assertEquals(sourceList.get(0).getItem(),targetList.get(0).getItem());
+        Assertions.assertEquals(sourceList.get(0).getBooker(),targetList.get(0).getBooker());
+        Assertions.assertEquals(sourceList.get(0).getStart(),targetList.get(0).getStart());
+        Assertions.assertEquals(sourceList.get(0).getEnd(),targetList.get(0).getEnd());
+
     }
 
     @Test
@@ -325,7 +420,7 @@ public class BookingServiceImplTest {
         ItemDto item = itemService.createItem(itemDto, ow.getId());
         Booking booking = makeBooking(
                 LocalDateTime.of(2024, 5, 6, 12, 12, 12),
-                LocalDateTime.of(2024, 6, 8, 12, 12, 12),
+                LocalDateTime.of(2024, 6, 30, 12, 12, 12),
                 new User(book.getId(), "booker", "booker@email.com"),
                 new Item(item.getId(), "name", "desc", true,
                         new User(ow.getId(), "Пётр", "some@email.com"), null),
@@ -505,7 +600,7 @@ public class BookingServiceImplTest {
         ItemDto item = itemService.createItem(itemDto, ow.getId());
         Booking booking = makeBooking(
                 LocalDateTime.of(2024, 5, 6, 12, 12, 12),
-                LocalDateTime.of(2024, 6, 8, 12, 12, 12),
+                LocalDateTime.of(2024, 6, 30, 12, 12, 12),
                 new User(book.getId(), "booker", "booker@email.com"),
                 new Item(item.getId(), "name", "desc", true,
                         new User(ow.getId(), "Пётр", "some@email.com"), null),
