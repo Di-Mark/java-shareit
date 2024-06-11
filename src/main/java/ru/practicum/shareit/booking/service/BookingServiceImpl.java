@@ -2,6 +2,8 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dao.BookingRepository;
@@ -77,71 +79,120 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> getBookingForUserByStatus(Long user, String status) {
+    public List<Booking> getBookingForUserByStatus(Long user, String status, Integer from, Integer size) {
+        if (size < 1 || from < 0) {
+            throw new ValidationException("");
+        }
         User booker = userRepository.findById(user).orElseThrow(() -> new NotFoundException(""));
         if (status == null || status.equals("") || status.equals(StatusBooking.ALL.name())) {
-            return bookingRepository.findByBookerOrderByStartDesc(booker);
+            List<Booking> res = bookingRepository
+                    .findByBooker(booker, PageRequest.of(from, size, Sort.by(Sort.Direction.DESC, "start")))
+                    .getContent();
+            if (res.size() == 0) {
+                List<Booking> answer = bookingRepository
+                        .findByBooker(booker,
+                                PageRequest.of(0, 20, Sort.by(Sort.Direction.ASC, "start")))
+                        .getContent();
+                return bookingRepository
+                        .findByBooker(booker,
+                                PageRequest.of(1, answer.size() - 1,
+                                        Sort.by(Sort.Direction.DESC, "start")))
+                        .getContent();
+            }
+            return res;
         }
         if (status.equals(StatusBooking.CURRENT.name())) {
-            return bookingRepository.findByBookerOrderByStartDesc(booker).stream()
+            List<Booking> res = bookingRepository
+                    .findByBooker(booker, PageRequest.of(from, size, Sort.by(Sort.Direction.DESC, "start")))
+                    .stream()
                     .filter(booking -> booking.getStart().isBefore(LocalDateTime.now())
                             && booking.getEnd().isAfter(LocalDateTime.now())).collect(Collectors.toList());
+            return res;
         }
         if (status.equals(StatusBooking.PAST.name())) {
-            return bookingRepository.findByBookerOrderByStartDesc(booker).stream()
+            List<Booking> res = bookingRepository
+                    .findByBooker(booker, PageRequest.of(from, size, Sort.by(Sort.Direction.DESC, "start")))
+                    .stream()
                     .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
                     .collect(Collectors.toList());
+            return res;
         }
         if (status.equals(StatusBooking.FUTURE.name())) {
-            return bookingRepository.findByBookerOrderByStartDesc(booker).stream()
+            List<Booking> res = bookingRepository
+                    .findByBooker(booker, PageRequest.of(from, size, Sort.by(Sort.Direction.DESC, "start")))
+                    .stream()
                     .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
                     .collect(Collectors.toList());
+            return res;
         }
         if (status.equals(StatusBooking.WAITING.name())) {
-            return bookingRepository.findByBookerOrderByStartDesc(booker).stream()
+            List<Booking> res = bookingRepository
+                    .findByBooker(booker, PageRequest.of(from, size, Sort.by(Sort.Direction.DESC, "start")))
+                    .stream()
                     .filter(booking -> booking.getStatus().name().equals(StatusBooking.WAITING.name()))
                     .collect(Collectors.toList());
+            return res;
         }
         if (status.equals(StatusBooking.REJECTED.name())) {
-            return bookingRepository.findByBookerOrderByStartDesc(booker).stream()
+            List<Booking> res = bookingRepository
+                    .findByBooker(booker, PageRequest.of(from, size, Sort.by(Sort.Direction.DESC, "start")))
+                    .stream()
                     .filter(booking -> booking.getStatus().name().equals(StatusBooking.REJECTED.name()))
                     .collect(Collectors.toList());
+            return res;
         }
         throw new ValidationException("Unknown state: " + status);
     }
 
     @Override
-    public List<Booking> getBookingForOwnerByStatus(Long userId, String status) {
+    public List<Booking> getBookingForOwnerByStatus(Long userId, String status, Integer from, Integer size) {
+        if (size < 1 || from < 0) {
+            throw new ValidationException("");
+        }
         User owner = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(""));
-        List<Item> itemsOwner = itemRepository.findByOwner(owner);
+        List<Item> itemsOwner = itemRepository.findByOwner(owner, PageRequest.of(0, 20)).stream()
+                .collect(Collectors.toList());
         if (status == null || status.equals("") || status.equals("ALL")) {
-            return bookingRepository.findByItemInOrderByStartDesc(itemsOwner);
+            List<Booking> res = bookingRepository
+                    .findByItemIn(itemsOwner, PageRequest
+                            .of(from, size, Sort.by(Sort.Direction.DESC, "start"))).getContent();
+            return res;
         }
         if (status.equals("CURRENT")) {
-            return bookingRepository.findByItemInOrderByStartDesc(itemsOwner).stream()
+            List<Booking> res = bookingRepository.findByItemIn(itemsOwner, PageRequest
+                            .of(from, size, Sort.by(Sort.Direction.DESC, "start"))).stream()
                     .filter(booking -> booking.getStart().isBefore(LocalDateTime.now())
                             && booking.getEnd().isAfter(LocalDateTime.now()))
                     .collect(Collectors.toList());
+            return res;
         }
         if (status.equals("PAST")) {
-            return bookingRepository.findByItemInOrderByStartDesc(itemsOwner).stream()
+            List<Booking> res = bookingRepository.findByItemIn(itemsOwner, PageRequest
+                            .of(from, size, Sort.by(Sort.Direction.DESC, "start"))).stream()
                     .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
                     .collect(Collectors.toList());
+            return res;
         }
         if (status.equals("FUTURE")) {
-            return bookingRepository.findByItemInOrderByStartDesc(itemsOwner).stream()
+            List<Booking> res = bookingRepository.findByItemIn(itemsOwner, PageRequest
+                            .of(from, size, Sort.by(Sort.Direction.DESC, "start"))).stream()
                     .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
                     .collect(Collectors.toList());
+            return res;
         }
         if (status.equals("WAITING")) {
-            return bookingRepository.findByItemInOrderByStartDesc(itemsOwner).stream()
+            List<Booking> res = bookingRepository.findByItemIn(itemsOwner, PageRequest
+                            .of(from, size, Sort.by(Sort.Direction.DESC, "start"))).stream()
                     .filter(booking -> booking.getStatus().name().equals("WAITING"))
                     .collect(Collectors.toList());
+            return res;
         }
         if (status.equals("REJECTED")) {
-            return bookingRepository.findByItemInOrderByStartDesc(itemsOwner).stream()
+            List<Booking> res = bookingRepository.findByItemIn(itemsOwner, PageRequest
+                            .of(from, size, Sort.by(Sort.Direction.DESC, "start"))).stream()
                     .filter(booking -> booking.getStatus().name().equals("REJECTED"))
                     .collect(Collectors.toList());
+            return res;
         }
         throw new ValidationException("Unknown state: " + status);
     }

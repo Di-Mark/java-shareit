@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dao.BookingRepository;
@@ -19,6 +20,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoBooking;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.dao.ItemRequestRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dao.UserRepository;
 
@@ -39,12 +41,16 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Transactional
     @Override
     public ItemDto createItem(ItemDto itemDto, Long userId) {
         checkItemForCreate(itemDto, userId);
         Item item = ItemMapper.toItem(itemDto);
+        if (itemDto.getRequestId() == null) {
+            item.setRequest(null);
+        } else item.setRequest(itemRequestRepository.findById(itemDto.getRequestId()).get());
         item.setOwner(userRepository.findById(userId).get());
         return ItemMapper.toItemDto(itemRepository.save(item));
     }
@@ -76,7 +82,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDtoBooking getItem(Long id, Long userId) {
         Item item = itemRepository.findById(id)
-                        .orElseThrow(() -> new NotFoundException("такого айтема не существует"));
+                .orElseThrow(() -> new NotFoundException("такого айтема не существует"));
         ItemDtoBooking result = ItemMapper.toItemDtoBooking(item);
         if (Objects.equals(item.getOwner().getId(), userId)) {
             List<Booking> test = bookingRepository.findByItemOrderByStartAsc(item);
@@ -104,20 +110,26 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDtoBooking> getItemsListForUser(Long userId) {
+    public List<ItemDtoBooking> getItemsListForUser(Long userId, Integer from, Integer size) {
+        if (size < 1 || from < 0) {
+            throw new ValidationException("");
+        }
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("такого пользователя нет"));
-        return itemRepository.findByOwner(user).stream()
+        return itemRepository.findByOwner(user, PageRequest.of(from, size)).stream()
                 .map(item -> getItem(item.getId(), userId))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<ItemDto> searchItemsForText(String text) {
+    public List<ItemDto> searchItemsForText(String text, Integer from, Integer size) {
+        if (size < 1 || from < 0) {
+            throw new ValidationException("");
+        }
         if (text == null || text.equals("")) {
             return new ArrayList<>();
         }
 
-        return itemRepository.search(text).stream()
+        return itemRepository.search(text, PageRequest.of(from, size)).stream()
                 .map(ItemMapper::toItemDto)
                 .filter(ItemDto::getAvailable)
                 .collect(Collectors.toList());
