@@ -8,7 +8,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exeption.ValidationException;
 
-import java.util.List;
 
 @Controller
 @RequestMapping(path = "/items")
@@ -32,7 +31,7 @@ public class ItemController {
             throw new ValidationException("статус вещи не может быть пустым или отсутствовать");
         }
         log.info("create Item");
-        return itemClient.createItem(itemDto,id);
+        return itemClient.createItem(itemDto, id);
     }
 
     @PatchMapping("/{id}")
@@ -49,43 +48,43 @@ public class ItemController {
             }
         }
         log.info("patch Item");
-        return itemClient.patchItem(item,itemId,userId);
+        return itemClient.patchItem(item, itemId, userId);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getItem(@PathVariable("id") long itemId, @RequestHeader("X-Sharer-User-Id") long userId) {
         log.info("get Item");
-        return itemClient.getItem(itemId,userId);
+        return itemClient.getItem(itemId, userId);
     }
 
     @PostMapping("/{id}/comment")
     public ResponseEntity<Object> addComment(@RequestBody Comment comment,
-                                 @PathVariable("id") Long itemId, @RequestHeader("X-Sharer-User-Id") long userId) {
+                                             @PathVariable("id") Long itemId, @RequestHeader("X-Sharer-User-Id") long userId) {
         if (comment.getText() == null || comment.getText().equals("") || itemId == null) {
             throw new ValidationException("");
         }
         log.info("add comment");
-        return itemClient.addComment(comment,itemId,userId);
+        return itemClient.addComment(comment, itemId, userId);
     }
 
     @GetMapping
     public ResponseEntity<Object> getItemsListForUser(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                    @RequestParam(defaultValue = "0") Integer from,
-                                                    @RequestParam(defaultValue = "20") Integer size) {
+                                                      @RequestParam(defaultValue = "0") Integer from,
+                                                      @RequestParam(defaultValue = "20") Integer size) {
         if (size < 1 || from < 0) {
             throw new ValidationException("");
         }
         log.info("get items list for user");
-        return itemClient.getItemsListForUser(userId,from,size);
+        return itemClient.getItemsListForUser(userId, from, size);
     }
 
     @GetMapping("/search")
     public ResponseEntity<Object> searchItemsForText(@RequestParam("text") String text,
-                                            @RequestParam(defaultValue = "0") Integer from,
-                                            @RequestParam(defaultValue = "20") Integer size,
+                                                     @RequestParam(defaultValue = "0") Integer from,
+                                                     @RequestParam(defaultValue = "20") Integer size,
                                                      @RequestHeader("X-Sharer-User-Id") long userId) {
         log.info("search item for text");
-        return itemClient.searchItemsForText(text,from,size,userId);
+        return itemClient.searchItemsForText(text, from, size, userId);
     }
 
 

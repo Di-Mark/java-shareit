@@ -8,7 +8,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exeption.ValidationException;
 
-import java.util.List;
 
 @Controller
 @RequestMapping(path = "/requests")
@@ -26,7 +25,7 @@ public class RequestController {
             throw new ValidationException("ошибка в описании");
         }
         log.info("create request");
-        return requestClient.createRequest(itemRequest,userId);
+        return requestClient.createRequest(itemRequest, userId);
     }
 
     @GetMapping
@@ -39,17 +38,17 @@ public class RequestController {
     public ResponseEntity<Object> findRequestById(@PathVariable("id") Long requestId,
                                                   @RequestHeader("X-Sharer-User-Id") long userId) {
         log.info("find request by id");
-        return requestClient.findRequestById(requestId,userId);
+        return requestClient.findRequestById(requestId, userId);
     }
 
     @GetMapping("/all")
     public ResponseEntity<Object> findAllRequest(@RequestParam(defaultValue = "0") Integer from,
-                                        @RequestParam(defaultValue = "20") Integer size,
+                                                 @RequestParam(defaultValue = "20") Integer size,
                                                  @RequestHeader("X-Sharer-User-Id") long userId) {
         if (size < 1 || from < 0) {
             throw new ValidationException("");
         }
         log.info("find all requests");
-        return requestClient.findAllRequest(userId,from,size);
+        return requestClient.findAllRequest(userId, from, size);
     }
 }
