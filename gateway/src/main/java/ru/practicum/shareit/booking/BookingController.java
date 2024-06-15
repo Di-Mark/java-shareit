@@ -66,7 +66,7 @@ public class BookingController {
 	public ResponseEntity<Object> changeStatus(@RequestHeader("X-Sharer-User-Id") long userId,
 								@PathVariable("id") Long bookingId, @RequestParam("approved") Boolean status) {
 		log.info("change Status");
-		return bookingClient.changeStatus(userId,userId,status);
+		return bookingClient.changeStatus(userId,bookingId,status);
 	}
 
 	@GetMapping("/owner")
