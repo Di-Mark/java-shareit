@@ -25,10 +25,7 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dao.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -117,6 +114,7 @@ public class ItemServiceImpl implements ItemService {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("такого пользователя нет"));
         return itemRepository.findByOwner(user, PageRequest.of(from, size)).stream()
                 .map(item -> getItem(item.getId(), userId))
+                .sorted((item1, item2) -> item1.getId().compareTo(item2.getId()))
                 .collect(Collectors.toList());
     }
 
