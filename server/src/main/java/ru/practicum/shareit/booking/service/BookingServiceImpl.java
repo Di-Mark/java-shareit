@@ -37,6 +37,7 @@ public class BookingServiceImpl implements BookingService {
     public Booking createBooking(BookingDto booking, Long userId) {
         checkBookingForCreate(booking, userId);
         Booking result = BookingMapping.toBooking(booking);
+        Booking test = BookingMapping.toBooking(booking);
         result.setItem(itemRepository.findById(booking.getItemId()).orElseThrow(() -> new NotFoundException("")));
         result.setBooker(userRepository.findById(userId).orElseThrow(() -> new NotFoundException("")));
         if (result.getBooker().equals(result.getItem().getOwner())) {
