@@ -26,7 +26,7 @@ public class RequestClient extends BaseClient {
     }
 
     public ResponseEntity<Object> createRequest(ItemRequest itemRequest, long userId) {
-        return post("", userId);
+        return post("", userId,itemRequest);
     }
 
     public ResponseEntity<Object> getRequestForUser(long userId) {
@@ -42,6 +42,6 @@ public class RequestClient extends BaseClient {
                 "from", from,
                 "size", size
         );
-        return get("/all?from={from}&size={size}", userId);
+        return get("/all?from={from}&size={size}", userId,parameters);
     }
 }

@@ -4,17 +4,14 @@ import java.util.Optional;
 
 public enum BookingState {
     // Все
-    ALL,
-    // Текущие
-    CURRENT,
-    // Будущие
-    FUTURE,
-    // Завершенные
-    PAST,
-    // Отклоненные
+    WAITING,
+    APPROVED,
     REJECTED,
-    // Ожидающие подтверждения
-    WAITING;
+    CANCELED,
+    CURRENT,
+    PAST,
+    FUTURE,
+    ALL;
 
     public static Optional<BookingState> from(String stringState) {
         for (BookingState state : values()) {
